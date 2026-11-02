@@ -1,26 +1,156 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ---------- Design tokens (generate utilities like bg-surface, text-fg-2) ---------- */
+@theme {
+  /* Names from the Vibra generated design */
+  --color-bg-base: #0b0f0e;
+  --color-surface: #131a18;
+  --color-surface-elevated: #1b2421;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-border-hover: rgba(255, 255, 255, 0.16);
+
+  --color-accent-lime: #a6e23a;
+  --color-accent-green: #4cd964;
+  --color-accent-teal: #1bc5a0;
+  --color-accent-solid: #4cd964;
+
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a3b1ac;
+  --color-text-muted: #6b7a75;
+
+  --color-error: #ff5c5c;
+  --color-warning: #ffb84d;
+
+  /* Short aliases used by our layout components */
+  --color-bg: #0b0f0e;
+  --color-elevated: #1b2421;
+  --color-line: rgba(255, 255, 255, 0.08);
+  --color-brand: #4cd964;
+  --color-lime: #a6e23a;
+  --color-teal: #1bc5a0;
+  --color-fg: #ffffff;
+  --color-fg-2: #a3b1ac;
+  --color-fg-3: #6b7a75;
 }
 
+/* Font comes from next/font in layout.tsx */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  body {
+    background-color: #0b0f0e;
+    color: #ffffff;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------- Vibra brand gradient utilities ---------- */
+@utility brand-gradient {
+  background: linear-gradient(135deg, #a6e23a 0%, #4cd964 50%, #1bc5a0 100%);
+}
+
+/* Kept so the PlayerBar and earlier code keep working */
+@utility bg-brand-gradient {
+  background: linear-gradient(135deg, #a6e23a 0%, #4cd964 50%, #1bc5a0 100%);
+}
+
+@utility brand-gradient-hover {
+  &:hover {
+    background: linear-gradient(135deg, #b5ee4b 0%, #5be373 50%, #25d7b1 100%);
+  }
+}
+
+@utility brand-gradient-border {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(#131a18, #131a18) padding-box,
+    linear-gradient(135deg, #a6e23a 0%, #4cd964 50%, #1bc5a0 100%) border-box;
+}
+
+@utility brand-gradient-text {
+  background: linear-gradient(135deg, #a6e23a 0%, #4cd964 50%, #1bc5a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility brand-glow {
+  box-shadow: 0 0 24px -4px rgba(76, 217, 100, 0.35);
+}
+
+@utility brand-glow-subtle {
+  box-shadow: 0 0 16px -2px rgba(27, 197, 160, 0.2);
+}
+
+/* ---------- Custom scrollbar ---------- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0f0e;
+}
+::-webkit-scrollbar-thumb {
+  background: #1b2421;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7a75;
+}
+
+/* ---------- Animated equalizer bars (for the currently playing track) ---------- */
+@keyframes equalizer-bar-1 {
+  0%, 100% { height: 4px; }
+  50% { height: 18px; }
+}
+@keyframes equalizer-bar-2 {
+  0%, 100% { height: 16px; }
+  50% { height: 6px; }
+}
+@keyframes equalizer-bar-3 {
+  0%, 100% { height: 8px; }
+  50% { height: 20px; }
+}
+@keyframes equalizer-bar-4 {
+  0%, 100% { height: 18px; }
+  50% { height: 5px; }
+}
+
+@utility animate-eq-1 {
+  animation: equalizer-bar-1 0.75s ease-in-out infinite;
+}
+@utility animate-eq-2 {
+  animation: equalizer-bar-2 0.65s ease-in-out infinite 0.15s;
+}
+@utility animate-eq-3 {
+  animation: equalizer-bar-3 0.85s ease-in-out infinite 0.3s;
+}
+@utility animate-eq-4 {
+  animation: equalizer-bar-4 0.7s ease-in-out infinite 0.1s;
+}
+
+/* ---------- Skeleton shimmer (loading states) ---------- */
+@keyframes skeleton-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@utility animate-shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0) 0,
+      rgba(255, 255, 255, 0.05) 20%,
+      rgba(255, 255, 255, 0.1) 60%,
+      rgba(255, 255, 255, 0)
+    );
+    animation: skeleton-shimmer 2s infinite;
+  }
 }
