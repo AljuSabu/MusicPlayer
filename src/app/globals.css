@@ -116,6 +116,15 @@
   50% { height: 5px; }
 }
 
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+@utility animate-fadeIn {
+  animation: fade-in 0.15s ease-out;
+}
+
 @utility animate-eq-1 {
   animation: equalizer-bar-1 0.75s ease-in-out infinite;
 }

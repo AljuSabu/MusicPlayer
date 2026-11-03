@@ -1,22 +1,22 @@
-import type { Track, JamendoResponse } from '@/types/music';
+import type { Track, JamendoResponse } from "@/types/music";
 
-const BASE_URL = 'https://api.jamendo.com/v3.0';
+const BASE_URL = "https://api.jamendo.com/v3.0";
 
 async function jamendoFetch(
   endpoint: string,
-  params: Record<string, string | number> = {}
+  params: Record<string, string | number> = {},
 ): Promise<Track[]> {
   const clientId = process.env.JAMENDO_CLIENT_ID;
-  if (!clientId) throw new Error('Missing JAMENDO_CLIENT_ID in .env.local');
+  if (!clientId) throw new Error("Missing JAMENDO_CLIENT_ID in .env.local");
 
   const query = new URLSearchParams({
     client_id: clientId,
-    format: 'json',
-    imagesize: '300',
-    audioformat: 'mp32', // better quality than the default
-    type: 'single albumtrack', // include singles, not just album tracks
+    format: "json",
+    imagesize: "300",
+    audioformat: "mp32", // better quality than the default
+    type: "single albumtrack", // include singles, not just album tracks
     ...Object.fromEntries(
-      Object.entries(params).map(([k, v]) => [k, String(v)])
+      Object.entries(params).map(([k, v]) => [k, String(v)]),
     ),
   });
 
@@ -27,24 +27,40 @@ async function jamendoFetch(
   if (!res.ok) throw new Error(`Jamendo request failed: ${res.status}`);
 
   const data: JamendoResponse<Track> = await res.json();
-  if (data.headers.status !== 'success') {
-    throw new Error(data.headers.error_message || 'Jamendo API error');
+  if (data.headers.status !== "success") {
+    throw new Error(data.headers.error_message || "Jamendo API error");
   }
-  return data.results;
+  return data.results.map((t) => ({
+    id: t.id,
+    name: t.name,
+    duration: t.duration,
+    artist_id: t.artist_id,
+    artist_name: t.artist_name,
+    album_id: t.album_id,
+    album_name: t.album_name,
+    image: t.image,
+    audio: t.audio,
+    license_ccurl: t.license_ccurl,
+    shareurl: t.shareurl,
+  }));
 }
 
 export function getTrendingTracks(limit = 10) {
-  return jamendoFetch('tracks', { order: 'popularity_week', limit });
+  return jamendoFetch("tracks", { order: "popularity_week", limit });
 }
 
 export function getNewReleases(limit = 10) {
-  return jamendoFetch('tracks', { order: 'releasedate_desc', limit });
+  return jamendoFetch("tracks", { order: "releasedate_desc", limit });
 }
 
 export function getTracksByGenre(genre: string, limit = 10) {
-  return jamendoFetch('tracks', { tags: genre, order: 'popularity_total', limit });
+  return jamendoFetch("tracks", {
+    tags: genre,
+    order: "popularity_total",
+    limit,
+  });
 }
 
 export function searchTracks(query: string, limit = 20) {
-  return jamendoFetch('tracks', { search: query, limit });
+  return jamendoFetch("tracks", { search: query, limit });
 }

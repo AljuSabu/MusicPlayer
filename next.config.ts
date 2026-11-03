@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
       },
     },
   },
+    images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'usercontent.jamendo.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
