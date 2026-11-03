@@ -1,5 +1,5 @@
-import { getTrendingTracks } from '@/lib/jamendo';
-import TrackList from '@/components/TrackList';
+import { getTrendingTracks } from "@/lib/jamendo";
+import TrackList from "@/components/TrackList";
 
 export default async function HomePage() {
   const tracks = await getTrendingTracks(10);
