@@ -45,12 +45,29 @@ async function jamendoFetch(
   }));
 }
 
+export function getFeaturedTracks(limit = 12) {
+  return jamendoFetch("tracks", {
+    featured: 1,
+    order: "popularity_week",
+    groupby: "artist_id",
+    limit,
+  });
+}
+
 export function getTrendingTracks(limit = 10) {
-  return jamendoFetch("tracks", { order: "popularity_week", limit });
+  return jamendoFetch("tracks", {
+    order: "popularity_week",
+    groupby: "artist_id",
+    limit,
+  });
 }
 
 export function getNewReleases(limit = 10) {
-  return jamendoFetch("tracks", { order: "releasedate_desc", limit });
+  return jamendoFetch("tracks", {
+    order: "releasedate_desc",
+    groupby: "artist_id",
+    limit,
+  });
 }
 
 export function getTracksByGenre(genre: string, limit = 10) {
