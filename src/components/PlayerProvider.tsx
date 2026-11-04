@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   createContext,
@@ -8,20 +8,21 @@ import {
   useRef,
   useState,
   type ReactNode,
-} from 'react';
-import type { Track } from '@/types/music';
+  type RefObject,
+} from "react";
+import type { Track } from "@/types/music";
 
 type PlayerContextValue = {
   currentTrack: Track | null;
   queue: Track[];
   queueIndex: number;
   isPlaying: boolean;
-  currentTime: number;
   duration: number;
   volume: number;
   isMuted: boolean;
   isShuffle: boolean;
   isRepeat: boolean;
+  audioRef: RefObject<HTMLAudioElement | null>;
   playTrack: (track: Track, queue?: Track[]) => void;
   playAt: (index: number) => void;
   togglePlay: () => void;
@@ -44,7 +45,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [queue, setQueue] = useState<Track[]>([]);
   const [queueIndex, setQueueIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
   const [volume, setVolumeState] = useState(78);
   const [isMuted, setIsMuted] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
@@ -75,7 +75,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   // Load liked songs from the browser on first render
   useEffect(() => {
     try {
-      const raw = localStorage.getItem('vibra:liked');
+      const raw = localStorage.getItem("vibra:liked");
       // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setLikedIds(JSON.parse(raw));
     } catch {
@@ -87,7 +87,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     const audio = audioRef.current;
     if (!audio) return;
     audio.currentTime = 0;
-    setCurrentTime(0);
     audio.play().catch(() => setIsPlaying(false));
   }, []);
 
@@ -98,18 +97,17 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         return;
       }
       const list = newQueue && newQueue.length > 0 ? newQueue : [track];
-      const index = Math.max(0, list.findIndex((t) => t.id === track.id));
+      const index = Math.max(
+        0,
+        list.findIndex((t) => t.id === track.id),
+      );
       setQueue(list);
       setQueueIndex(index);
-      setCurrentTime(0);
     },
-    [currentTrack?.id]
+    [currentTrack?.id],
   );
 
-  const playAt = useCallback((index: number) => {
-    setQueueIndex(index);
-    setCurrentTime(0);
-  }, []);
+  const playAt = useCallback((index: number) => setQueueIndex(index), []);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -131,7 +129,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       } while (target === queueIndex);
     }
     setQueueIndex(target);
-    setCurrentTime(0);
   }, [queue.length, queueIndex, isShuffle, restart]);
 
   const prev = useCallback(() => {
@@ -143,14 +140,10 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
       return;
     }
     setQueueIndex((queueIndex - 1 + queue.length) % queue.length);
-    setCurrentTime(0);
   }, [queue.length, queueIndex, restart]);
 
   const seek = useCallback((seconds: number) => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.currentTime = seconds;
-    setCurrentTime(seconds);
+    if (audioRef.current) audioRef.current.currentTime = seconds;
   }, []);
 
   const setVolume = useCallback((value: number) => {
@@ -164,7 +157,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         ? prevIds.filter((x) => x !== id)
         : [...prevIds, id];
       try {
-        localStorage.setItem('vibra:liked', JSON.stringify(updated));
+        localStorage.setItem("vibra:liked", JSON.stringify(updated));
       } catch {
         // ignore storage errors
       }
@@ -174,7 +167,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const handleEnded = () => {
     if (isRepeat) restart();
-    else if (!isShuffle && queueIndex === queue.length - 1) return; // end of queue
+    else if (!isShuffle && queueIndex === queue.length - 1)
+      return; // end of queue
     else next();
   };
 
@@ -183,12 +177,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     queue,
     queueIndex,
     isPlaying,
-    currentTime,
     duration,
     volume,
     isMuted,
     isShuffle,
     isRepeat,
+    audioRef,
     playTrack,
     playAt,
     togglePlay,
@@ -211,7 +205,6 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         preload="metadata"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
-        onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
         onEnded={handleEnded}
       />
     </PlayerContext.Provider>
@@ -220,6 +213,23 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
 export function usePlayer() {
   const ctx = useContext(PlayerContext);
-  if (!ctx) throw new Error('usePlayer must be used inside <PlayerProvider>');
+  if (!ctx) throw new Error("usePlayer must be used inside <PlayerProvider>");
   return ctx;
+}
+
+/** Current playback time. Only components that call this re-render on each tick. */
+export function useAudioTime() {
+  const { audioRef } = usePlayer();
+  const [time, setTime] = useState(0);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    const update = () => setTime(audio.currentTime);
+    const events = ["timeupdate", "seeked", "emptied", "loadstart"] as const;
+    events.forEach((e) => audio.addEventListener(e, update));
+    return () => events.forEach((e) => audio.removeEventListener(e, update));
+  }, [audioRef]);
+
+  return time;
 }
