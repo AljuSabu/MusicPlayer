@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import Image from 'next/image';
+import { useState } from "react";
+import Image from "next/image";
 import {
   Play,
   Pause,
@@ -16,9 +16,10 @@ import {
   ListMusic,
   Maximize2,
   Music,
-} from 'lucide-react';
-import { usePlayer } from '@/components/PlayerProvider';
-import { formatTime } from '@/lib/utils';
+} from "lucide-react";
+import { usePlayer } from "@/components/PlayerProvider";
+import { formatTime } from "@/lib/utils";
+import SeekBar from "./SeekBar";
 
 export default function PlayerBar() {
   const {
@@ -26,8 +27,6 @@ export default function PlayerBar() {
     queue,
     queueIndex,
     isPlaying,
-    currentTime,
-    duration,
     volume,
     isMuted,
     isShuffle,
@@ -36,7 +35,6 @@ export default function PlayerBar() {
     togglePlay,
     next,
     prev,
-    seek,
     setVolume,
     toggleMute,
     toggleShuffle,
@@ -50,21 +48,12 @@ export default function PlayerBar() {
 
   const hasTrack = currentTrack !== null;
   const liked = hasTrack && isLiked(currentTrack.id);
-  const progressPercent =
-    duration > 0 ? Math.min(100, (currentTime / duration) * 100) : 0;
   const upNext = queue.slice(queueIndex + 1, queueIndex + 5);
-
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!hasTrack) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    seek(Math.round(pos * duration));
-  };
 
   return (
     <footer
       aria-label="Vibra Master Player"
-      className="relative z-50 col-span-2 flex h-22 select-none items-center justify-between border-t border-white/8 bg-surface/90 px-4 shadow-[0_-12px_36px_rgba(0,0,0,0.7)] backdrop-blur-xl sm:px-6"
+      className="relative z-50 col-span-2 flex h-22 select-none items-center justify-between border-t border-white/8 bg-surface px-4 sm:px-6"
     >
       {/* 1. Left Section: cover, title, artist, heart */}
       <div className="flex w-60 min-w-0 items-center gap-3.5 sm:w-70">
@@ -94,22 +83,22 @@ export default function PlayerBar() {
 
         <div className="min-w-0 flex-1">
           <h4 className="cursor-pointer truncate text-xs font-bold text-white hover:underline sm:text-sm">
-            {hasTrack ? currentTrack.name : 'Nothing playing'}
+            {hasTrack ? currentTrack.name : "Nothing playing"}
           </h4>
           <p className="mt-0.5 cursor-pointer truncate text-[11px] text-[#A3B1AC] hover:text-white sm:text-xs">
-            {hasTrack ? currentTrack.artist_name : 'Pick a track to start'}
+            {hasTrack ? currentTrack.artist_name : "Pick a track to start"}
           </p>
         </div>
 
         <button
           onClick={() => hasTrack && toggleLike(currentTrack.id)}
           disabled={!hasTrack}
-          aria-label={liked ? 'Remove from Liked Songs' : 'Save to Liked Songs'}
+          aria-label={liked ? "Remove from Liked Songs" : "Save to Liked Songs"}
           className={`shrink-0 rounded-full p-1.5 transition-colors duration-150 disabled:opacity-40 ${
-            liked ? 'text-[#4CD964]' : 'text-[#6B7A75] hover:text-white'
+            liked ? "text-[#4CD964]" : "text-[#6B7A75] hover:text-white"
           }`}
         >
-          <Heart className={`h-4 w-4 ${liked ? 'fill-[#4CD964]' : ''}`} />
+          <Heart className={`h-4 w-4 ${liked ? "fill-[#4CD964]" : ""}`} />
         </button>
       </div>
 
@@ -120,7 +109,7 @@ export default function PlayerBar() {
             onClick={toggleShuffle}
             aria-label="Shuffle playback"
             className={`p-1 transition-colors duration-150 ${
-              isShuffle ? 'text-[#4CD964]' : 'text-[#6B7A75] hover:text-white'
+              isShuffle ? "text-[#4CD964]" : "text-[#6B7A75] hover:text-white"
             }`}
           >
             <Shuffle className="h-4 w-4" />
@@ -138,7 +127,7 @@ export default function PlayerBar() {
           <button
             onClick={togglePlay}
             disabled={!hasTrack}
-            aria-label={isPlaying ? 'Pause' : 'Play'}
+            aria-label={isPlaying ? "Pause" : "Play"}
             className="brand-gradient flex h-10 w-10 items-center justify-center rounded-full text-[#0B0F0E] shadow-[0_0_24px_rgba(76,217,100,0.45)] transition-all duration-150 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:hover:scale-100 sm:h-11 sm:w-11"
           >
             {isPlaying ? (
@@ -161,7 +150,7 @@ export default function PlayerBar() {
             onClick={toggleRepeat}
             aria-label="Repeat playback"
             className={`p-1 transition-colors duration-150 ${
-              isRepeat ? 'text-[#4CD964]' : 'text-[#6B7A75] hover:text-white'
+              isRepeat ? "text-[#4CD964]" : "text-[#6B7A75] hover:text-white"
             }`}
           >
             <Repeat className="h-4 w-4" />
@@ -169,33 +158,7 @@ export default function PlayerBar() {
         </div>
 
         {/* Seek bar */}
-        <div className="flex w-full items-center gap-3 font-mono text-[11px] text-[#6B7A75]">
-          <span className="w-9 text-right tabular-nums">{formatTime(currentTime)}</span>
-
-          <div
-            onClick={handleSeek}
-            role="progressbar"
-            aria-valuenow={Math.round(progressPercent)}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-label="Seek track position"
-            className="group relative flex h-3 flex-1 cursor-pointer items-center py-1"
-          >
-            <div className="relative h-1 w-full overflow-hidden rounded-full bg-[#1B2421]">
-              <div
-                className="brand-gradient h-full rounded-full transition-all duration-150"
-                style={{ width: `${progressPercent}%` }}
-              />
-            </div>
-
-            <div
-              className="pointer-events-none absolute top-1/2 -ml-1.5 h-3 w-3 -translate-y-1/2 scale-0 rounded-full bg-white shadow-[0_0_8px_#4CD964] transition-transform duration-150 group-hover:scale-100"
-              style={{ left: `${progressPercent}%` }}
-            />
-          </div>
-
-          <span className="w-9 text-left tabular-nums">{formatTime(duration)}</span>
-        </div>
+        <SeekBar />
       </div>
 
       {/* 3. Right Section: lyrics, queue, volume, expand */}
@@ -204,7 +167,9 @@ export default function PlayerBar() {
           onClick={() => setShowLyricsModal(!showLyricsModal)}
           aria-label="Toggle Lyrics"
           className={`rounded-full p-1.5 transition-colors duration-150 ${
-            showLyricsModal ? 'text-[#4CD964]' : 'text-[#A3B1AC] hover:text-white'
+            showLyricsModal
+              ? "text-[#4CD964]"
+              : "text-[#A3B1AC] hover:text-white"
           }`}
         >
           <Mic2 className="h-4 w-4" />
@@ -214,7 +179,9 @@ export default function PlayerBar() {
           onClick={() => setShowQueueModal(!showQueueModal)}
           aria-label="Toggle Playback Queue"
           className={`rounded-full p-1.5 transition-colors duration-150 ${
-            showQueueModal ? 'text-[#4CD964]' : 'text-[#A3B1AC] hover:text-white'
+            showQueueModal
+              ? "text-[#4CD964]"
+              : "text-[#A3B1AC] hover:text-white"
           }`}
         >
           <ListMusic className="h-4 w-4" />
@@ -223,7 +190,7 @@ export default function PlayerBar() {
         <div className="group flex items-center gap-2">
           <button
             onClick={toggleMute}
-            aria-label={isMuted ? 'Unmute volume' : 'Mute volume'}
+            aria-label={isMuted ? "Unmute volume" : "Mute volume"}
             className="p-1 text-[#A3B1AC] transition-colors duration-150 hover:text-white"
           >
             {isMuted || volume === 0 ? (
@@ -274,7 +241,7 @@ export default function PlayerBar() {
               <span>Play Queue</span>
             </span>
             <span className="text-[10px] text-[#A3B1AC]">
-              Next: {upNext.length} {upNext.length === 1 ? 'track' : 'tracks'}
+              Next: {upNext.length} {upNext.length === 1 ? "track" : "tracks"}
             </span>
           </div>
 
@@ -292,7 +259,9 @@ export default function PlayerBar() {
                     {i + 1}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium text-white">{track.name}</div>
+                    <div className="truncate font-medium text-white">
+                      {track.name}
+                    </div>
                     <div className="truncate text-[10px] text-[#6B7A75]">
                       {track.artist_name}
                     </div>
