@@ -24,7 +24,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={jakarta.variable}>
-      <body className="grid h-screen grid-cols-[240px_1fr] grid-rows-[minmax(0,1fr)_88px] overflow-hidden bg-bg font-sans text-fg">
+      <body className="grid h-screen grid-cols-[240px_1fr] grid-rows-[minmax(0,1fr)_0px] overflow-hidden bg-bg font-sans text-fg">
         <PlayerProvider>
           <Sidebar />
           <div className="flex min-h-0 flex-col">

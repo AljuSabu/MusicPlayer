@@ -1,7 +1,7 @@
-'use client';
+"use client";
 
-import { useEffect, useRef, useState } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
@@ -10,14 +10,14 @@ import {
   ChevronDown,
   Settings,
   LogOut,
-} from 'lucide-react';
+} from "lucide-react";
 
 export default function TopBar() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const urlQuery = searchParams.get('q') ?? '';
+  const urlQuery = searchParams.get("q") ?? "";
   const [query, setQuery] = useState(urlQuery); // starts from the URL, e.g. after a refresh
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -25,7 +25,7 @@ export default function TopBar() {
   // Clear the box when you leave the search page (e.g. click Home)
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (pathname !== '/search') setQuery('');
+    if (pathname !== "/search") setQuery("");
   }, [pathname]);
 
   // Debounced search: wait 400ms after typing stops, then update the URL
@@ -37,10 +37,10 @@ export default function TopBar() {
       if (trimmed) {
         const url = `/search?q=${encodeURIComponent(trimmed)}`;
         // replace while already searching, so Back doesn't step through every keystroke
-        if (pathname === '/search') router.replace(url);
+        if (pathname === "/search") router.replace(url);
         else router.push(url);
-      } else if (pathname === '/search') {
-        router.replace('/search');
+      } else if (pathname === "/search") {
+        router.replace("/search");
       }
     }, 400);
 
@@ -50,16 +50,19 @@ export default function TopBar() {
   // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsDropdownOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
-    <header className="relative z-40 flex h-16 shrink-0 items-center justify-between gap-6 border-b border-white/8 bg-[#0B0F0E]/80 px-6 backdrop-blur-md sm:px-8">
+    <header className="relative z-40 flex h-16 shrink-0 items-center justify-between gap-6 border-b border-white/8 bg-[#0B0F0E] px-6 sm:px-8">
       {/* Left Section: Back/Forward Circular Buttons */}
       <div className="flex shrink-0 items-center gap-2">
         <button
@@ -93,7 +96,7 @@ export default function TopBar() {
           />
           {query && (
             <button
-              onClick={() => setQuery('')}
+              onClick={() => setQuery("")}
               aria-label="Clear search text"
               className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-[#6B7A75] transition-colors hover:bg-white/8 hover:text-white"
             >
@@ -104,7 +107,10 @@ export default function TopBar() {
       </div>
 
       {/* Right Section: User Avatar with Dropdown */}
-      <div className="relative flex shrink-0 items-center gap-3" ref={dropdownRef}>
+      <div
+        className="relative flex shrink-0 items-center gap-3"
+        ref={dropdownRef}
+      >
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           aria-expanded={isDropdownOpen}
@@ -118,10 +124,12 @@ export default function TopBar() {
             </div>
           </div>
 
-          <span className="hidden text-xs font-semibold text-white sm:inline">Alex R.</span>
+          <span className="hidden text-xs font-semibold text-white sm:inline">
+            Alex R.
+          </span>
           <ChevronDown
             className={`h-3.5 w-3.5 text-[#A3B1AC] transition-transform duration-200 ${
-              isDropdownOpen ? 'rotate-180' : ''
+              isDropdownOpen ? "rotate-180" : ""
             }`}
           />
         </button>
@@ -133,7 +141,9 @@ export default function TopBar() {
               <p className="text-xs font-bold text-white">Alex Rivera</p>
               <div className="mt-0.5 flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#4CD964]" />
-                <p className="text-[11px] font-medium text-[#4CD964]">Free plan</p>
+                <p className="text-[11px] font-medium text-[#4CD964]">
+                  Free plan
+                </p>
               </div>
             </div>
 
