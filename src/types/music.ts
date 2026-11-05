@@ -29,3 +29,25 @@ export type Playlist = {
   trackCount: number;
   coverGradient: string; //Tailwind gradient classes
 };
+
+export type Artist = {
+  id: string;
+  name: string;
+  image: string;
+  joindate?: string;
+};
+
+export type Album = {
+  id: string;
+  name: string;
+  releasedate?: string;
+  artist_id: string;
+  artist_name: string;
+  image: string;
+};
+
+export type PlaylistResult = {
+  id: string;
+  name: string;
+  user_name?: string;
+};
