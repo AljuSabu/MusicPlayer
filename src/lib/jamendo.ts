@@ -81,3 +81,11 @@ export function getTracksByGenre(genre: string, limit = 10) {
 export function searchTracks(query: string, limit = 20) {
   return jamendoFetch("tracks", { search: query, limit });
 }
+
+export function getTracksByIds(ids: string[]) {
+  if (ids.length === 0) return Promise.resolve([]);
+  return jamendoFetch("tracks", {
+    id: ids.join(" "),
+    limit: Math.min(ids.length, 200),
+  });
+}
