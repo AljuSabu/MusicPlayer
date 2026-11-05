@@ -23,6 +23,8 @@ type PlayerContextValue = {
   isShuffle: boolean;
   isRepeat: boolean;
   audioRef: RefObject<HTMLAudioElement | null>;
+  likedIds: string[];
+  likesReady: boolean;
   playTrack: (track: Track, queue?: Track[]) => void;
   playAt: (index: number) => void;
   togglePlay: () => void;
@@ -50,6 +52,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [likedIds, setLikedIds] = useState<string[]>([]);
+  const [likesReady, setLikesReady] = useState(false);
 
   const currentTrack = queueIndex >= 0 ? (queue[queueIndex] ?? null) : null;
   const trackId = currentTrack?.id;
@@ -81,6 +84,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     } catch {
       // ignore storage errors
     }
+    setLikesReady(true);
   }, []);
 
   const restart = useCallback(() => {
@@ -183,6 +187,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     isShuffle,
     isRepeat,
     audioRef,
+    likedIds,
+    likesReady,
     playTrack,
     playAt,
     togglePlay,
