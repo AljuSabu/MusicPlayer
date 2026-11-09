@@ -12,12 +12,10 @@ const nextConfig: NextConfig = {
       },
     },
   },
-    images: {
+  images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'usercontent.jamendo.com',
-      },
+      { protocol: "https", hostname: "usercontent.jamendo.com" },
+      { protocol: "https", hostname: "images.jamendo.com" },
     ],
   },
 };
