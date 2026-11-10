@@ -8,6 +8,9 @@ import type {
 
 const BASE_URL = "https://api.jamendo.com/v3.0";
 
+// No caching while developing, 1 hour in production
+const REVALIDATE_SECONDS = process.env.NODE_ENV === "production" ? 3600 : 0;
+
 type Params = Record<string, string | number>;
 
 async function jamendoRequest<T>(
@@ -26,7 +29,7 @@ async function jamendoRequest<T>(
   });
 
   const res = await fetch(`${BASE_URL}/${endpoint}/?${query}`, {
-    next: { revalidate: 3600 }, // cache for 1 hour
+    next: { revalidate: REVALIDATE_SECONDS },
   });
   if (!res.ok) throw new Error(`Jamendo request failed: ${res.status}`);
 
