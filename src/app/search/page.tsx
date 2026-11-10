@@ -1,9 +1,17 @@
 import { Suspense } from "react";
-import { searchTracks } from "@/lib/jamendo";
-import TrackList from "@/components/TrackList";
-import ListSkeleton from "@/components/ListSkeleton";
+import { parseFilter, type SearchFilter } from "@/lib/search-filters";
+import RecentSearches from "@/components/search/RecentSearches";
+import SaveRecentSearch from "@/components/search/SaveRecentSearch";
+import BrowseAll from "@/components/search/BrowseAll";
+import FilterChips from "@/components/search/FilterChips";
+import SongsSection from "@/components/search/SongsSection";
+import ArtistsSection from "@/components/search/ArtistsSection";
+import AlbumsSection from "@/components/search/AlbumsSection";
+import PlaylistsSection from "@/components/search/PlaylistsSection";
+import { SongsSkeleton } from "@/components/search/Skeletons";
+import { ShelfSkeleton } from "@/components/home/Skeletons";
 
-type SearchParams = Promise<{ q?: string }>;
+type SearchParams = Promise<{ q?: string; type?: string }>;
 
 export default function SearchPage({
   searchParams,
@@ -12,41 +20,67 @@ export default function SearchPage({
 }) {
   return (
     <div className="py-4">
-      <Suspense fallback={<ListSkeleton />}>
-        <SearchResults searchParams={searchParams} />
+      <Suspense fallback={<SongsSkeleton />}>
+        <SearchContent searchParams={searchParams} />
       </Suspense>
     </div>
   );
 }
 
-async function SearchResults({ searchParams }: { searchParams: SearchParams }) {
-  const { q } = await searchParams;
+async function SearchContent({ searchParams }: { searchParams: SearchParams }) {
+  const { q, type } = await searchParams;
   const query = q?.trim() ?? "";
 
+  // State A: nothing typed yet
   if (!query) {
     return (
-      <>
-        <h1 className="mb-2 text-3xl font-bold">Search</h1>
-        <p className="text-fg-2">
-          Type in the search bar to find tracks, artists or genres.
-        </p>
-      </>
+      <div className="space-y-10">
+        <h1 className="sr-only">Search</h1>
+        <RecentSearches />
+        <BrowseAll />
+      </div>
     );
   }
 
-  const tracks = await searchTracks(query, 20).catch(() => []);
+  // State B: results
+  const filter = parseFilter(type);
+  const full = filter !== "all";
+  const show = (section: SearchFilter) =>
+    filter === "all" || filter === section;
 
   return (
     <>
+      <SaveRecentSearch query={query} />
+
       <h1 className="mb-6 text-3xl font-bold">
         Results for{" "}
         <span className="brand-gradient-text">&ldquo;{query}&rdquo;</span>
       </h1>
-      {tracks.length === 0 ? (
-        <p className="text-fg-2">No results found. Try a different search.</p>
-      ) : (
-        <TrackList tracks={tracks} />
-      )}
+
+      <FilterChips query={query} active={filter} />
+
+      <div className="space-y-10">
+        {show("songs") && (
+          <Suspense fallback={<SongsSkeleton />}>
+            <SongsSection query={query} full={full} />
+          </Suspense>
+        )}
+        {show("artists") && (
+          <Suspense fallback={<ShelfSkeleton title="Artists" />}>
+            <ArtistsSection query={query} full={full} />
+          </Suspense>
+        )}
+        {show("albums") && (
+          <Suspense fallback={<ShelfSkeleton title="Albums" />}>
+            <AlbumsSection query={query} full={full} />
+          </Suspense>
+        )}
+        {show("playlists") && (
+          <Suspense fallback={<ShelfSkeleton title="Playlists" />}>
+            <PlaylistsSection query={query} full={full} />
+          </Suspense>
+        )}
+      </div>
     </>
   );
 }
