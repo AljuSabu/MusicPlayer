@@ -37,6 +37,7 @@ type PlayerContextValue = {
   toggleRepeat: () => void;
   isLiked: (id: string) => boolean;
   toggleLike: (id: string) => void;
+  addToQueue: (tracks: Track[]) => void;
 };
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -112,6 +113,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   );
 
   const playAt = useCallback((index: number) => setQueueIndex(index), []);
+
+  const addToQueue = useCallback((tracks: Track[]) => {
+    setQueue((prev) => {
+      const existing = new Set(prev.map((t) => t.id));
+      return [...prev, ...tracks.filter((t) => !existing.has(t.id))];
+    });
+  }, []);
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current;
@@ -201,6 +209,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     toggleRepeat: () => setIsRepeat((r) => !r),
     isLiked: (id) => likedIds.includes(id),
     toggleLike,
+    addToQueue,
   };
 
   return (
