@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import TopBar from "@/components/TopBar";
 import PlayerBar from "@/components/PlayerBar";
 import { PlayerProvider } from "@/components/PlayerProvider";
+import SidebarSkeleton from "@/components/SidebarSkeleton";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -26,7 +27,10 @@ export default function RootLayout({
     <html lang="en" className={jakarta.variable}>
       <body className="grid h-screen grid-cols-[240px_1fr] grid-rows-[minmax(0,1fr)_0px] overflow-hidden bg-bg font-sans text-fg">
         <PlayerProvider>
-          <Sidebar />
+          <Suspense fallback={<SidebarSkeleton />}>
+            <Sidebar />
+          </Suspense>
+
           <div className="flex min-h-0 flex-col">
             <Suspense
               fallback={
@@ -37,6 +41,7 @@ export default function RootLayout({
             </Suspense>
             <main className="flex-1 overflow-y-auto px-8 pb-8">{children}</main>
           </div>
+
           <PlayerBar />
         </PlayerProvider>
       </body>
