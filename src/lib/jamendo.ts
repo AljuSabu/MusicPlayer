@@ -149,3 +149,84 @@ export async function searchPlaylists(
     user_name: p.user_name,
   }));
 }
+
+/* ---------- Album page ---------- */
+
+type RawAlbumTrack = {
+  id: string;
+  position?: string;
+  name: string;
+  duration: string | number;
+  audio?: string;
+  license_ccurl?: string;
+};
+
+type RawAlbumWithTracks = Album & {
+  shareurl?: string;
+  tracks?: RawAlbumTrack[];
+};
+
+export type AlbumDetail = {
+  album: Album;
+  shareurl?: string;
+  tracks: Track[];
+};
+
+export async function getAlbumWithTracks(id: string): Promise<AlbumDetail | null> {
+  const results = await jamendoRequest<RawAlbumWithTracks>('albums/tracks', {
+    id,
+    imagesize: 300,
+    audioformat: 'mp32',
+  });
+
+  const raw = results[0];
+  if (!raw) return null;
+
+  // Tracks inside an album come back unordered, so sort by position
+  const tracks: Track[] = (raw.tracks ?? [])
+    .filter((t) => t.audio)
+    .sort((a, b) => Number(a.position) - Number(b.position))
+    .map((t) => ({
+      id: t.id,
+      name: t.name,
+      duration: Number(t.duration),
+      artist_id: raw.artist_id,
+      artist_name: raw.artist_name,
+      album_id: raw.id,
+      album_name: raw.name,
+      image: raw.image,
+      audio: t.audio as string,
+      license_ccurl: t.license_ccurl ?? '',
+      shareurl: '',
+    }));
+
+  return {
+    album: {
+      id: raw.id,
+      name: raw.name,
+      releasedate: raw.releasedate,
+      artist_id: raw.artist_id,
+      artist_name: raw.artist_name,
+      image: raw.image,
+    },
+    shareurl: raw.shareurl,
+    tracks,
+  };
+}
+
+export async function getArtistAlbums(artistId: string, limit = 8): Promise<Album[]> {
+  const results = await jamendoRequest<Album>('albums', {
+    artist_id: artistId,
+    order: 'popularity_total',
+    imagesize: 300,
+    limit,
+  });
+  return results.map((a) => ({
+    id: a.id,
+    name: a.name,
+    releasedate: a.releasedate,
+    artist_id: a.artist_id,
+    artist_name: a.artist_name,
+    image: a.image,
+  }));
+}
