@@ -5,6 +5,7 @@ import type {
   PlaylistResult,
   JamendoResponse,
 } from "@/types/music";
+import { artistImageUrl } from "@/lib/library";
 
 const BASE_URL = "https://api.jamendo.com/v3.0";
 
@@ -172,11 +173,13 @@ export type AlbumDetail = {
   tracks: Track[];
 };
 
-export async function getAlbumWithTracks(id: string): Promise<AlbumDetail | null> {
-  const results = await jamendoRequest<RawAlbumWithTracks>('albums/tracks', {
+export async function getAlbumWithTracks(
+  id: string,
+): Promise<AlbumDetail | null> {
+  const results = await jamendoRequest<RawAlbumWithTracks>("albums/tracks", {
     id,
     imagesize: 300,
-    audioformat: 'mp32',
+    audioformat: "mp32",
   });
 
   const raw = results[0];
@@ -196,8 +199,8 @@ export async function getAlbumWithTracks(id: string): Promise<AlbumDetail | null
       album_name: raw.name,
       image: raw.image,
       audio: t.audio as string,
-      license_ccurl: t.license_ccurl ?? '',
-      shareurl: '',
+      license_ccurl: t.license_ccurl ?? "",
+      shareurl: "",
     }));
 
   return {
@@ -214,12 +217,17 @@ export async function getAlbumWithTracks(id: string): Promise<AlbumDetail | null
   };
 }
 
-export async function getArtistAlbums(artistId: string, limit = 8): Promise<Album[]> {
-  const results = await jamendoRequest<Album>('albums', {
+export async function getArtistAlbums(
+  artistId: string,
+  limit = 8,
+  options: { type?: "album" | "single"; order?: string } = {},
+): Promise<Album[]> {
+  const results = await jamendoRequest<Album>("albums", {
     artist_id: artistId,
-    order: 'popularity_total',
+    order: options.order ?? "popularity_total",
     imagesize: 300,
     limit,
+    ...(options.type ? { type: options.type } : {}),
   });
   return results.map((a) => ({
     id: a.id,
@@ -229,4 +237,116 @@ export async function getArtistAlbums(artistId: string, limit = 8): Promise<Albu
     artist_name: a.artist_name,
     image: a.image,
   }));
+}
+
+/* ---------- Artist page ---------- */
+
+type RawArtist = {
+  id: string;
+  name: string;
+  website?: string;
+  joindate?: string;
+  shareurl?: string;
+  musicinfo?: { description?: unknown; tags?: unknown };
+};
+
+export type ArtistProfile = {
+  id: string;
+  name: string;
+  joindate?: string;
+  website?: string;
+  shareurl?: string;
+  bio?: string; // plain text
+  tags: string[];
+};
+
+// The description is HTML, possibly keyed by language. Reduce it to plain text.
+function extractBio(description: unknown): string | undefined {
+  let html: string | undefined;
+
+  if (typeof description === "string") {
+    html = description;
+  } else if (description && typeof description === "object") {
+    const byLanguage = description as Record<string, unknown>;
+    const pick = byLanguage.en ?? Object.values(byLanguage)[0];
+    if (typeof pick === "string") html = pick;
+  }
+  if (!html) return undefined;
+
+  const text = html
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return text || undefined;
+}
+
+export async function getArtistProfile(
+  id: string,
+): Promise<ArtistProfile | null> {
+  const results = await jamendoRequest<RawArtist>("artists/musicinfo", { id });
+  const raw = results[0];
+  if (!raw) return null;
+
+  const rawTags = raw.musicinfo?.tags;
+  const tags = Array.isArray(rawTags)
+    ? rawTags
+        .filter(
+          (t): t is string => typeof t === "string" && t.trim().length > 0,
+        )
+        .slice(0, 5)
+    : [];
+
+  return {
+    id: raw.id,
+    name: raw.name,
+    joindate: raw.joindate,
+    // The website is typed in by the artist, so only allow real web links
+    website:
+      raw.website && /^https?:\/\//i.test(raw.website)
+        ? raw.website
+        : undefined,
+    shareurl: raw.shareurl,
+    bio: extractBio(raw.musicinfo?.description),
+    tags,
+  };
+}
+
+export function getArtistPopularTracks(artistId: string, limit = 10) {
+  return fetchTracks({ artist_id: artistId, order: "popularity_total", limit });
+}
+
+// "Similar" = other popular artists playing the same tag
+export async function getSimilarArtists(
+  tag: string,
+  excludeId: string,
+  limit = 5,
+): Promise<Artist[]> {
+  const tracks = await fetchTracks({
+    tags: tag,
+    order: "popularity_week",
+    groupby: "artist_id",
+    limit: limit + 6,
+  });
+
+  const seen = new Set<string>([excludeId]);
+  const artists: Artist[] = [];
+  for (const t of tracks) {
+    if (seen.has(t.artist_id)) continue;
+    seen.add(t.artist_id);
+    artists.push({
+      id: t.artist_id,
+      name: t.artist_name,
+      image: artistImageUrl(t.artist_id),
+    });
+    if (artists.length === limit) break;
+  }
+  return artists;
 }
