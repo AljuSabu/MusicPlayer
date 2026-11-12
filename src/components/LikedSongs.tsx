@@ -1,56 +1,16 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Heart } from "lucide-react";
-import type { Track } from "@/types/music";
-import { usePlayer } from "@/components/PlayerProvider";
 import TrackList from "@/components/TrackList";
 import ListSkeleton from "@/components/ListSkeleton";
+import LoadError from "@/components/LoadError";
+import { useLikedTracks } from "@/lib/use-liked-tracks";
 
 export default function LikedSongs() {
-  const { likedIds, likesReady } = usePlayer();
-  const [cache, setCache] = useState<Record<string, Track>>({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const requested = useRef(new Set<string>()); // ids we've already asked for
+  const { tracks, likedCount, ready, error, retry } = useLikedTracks();
 
-  useEffect(() => {
-    if (!likesReady) return;
-
-    const missing = likedIds.filter((id) => !requested.current.has(id));
-    if (missing.length === 0) {
-      setLoading(false);
-      return;
-    }
-    missing.forEach((id) => requested.current.add(id));
-
-    fetch(`/api/tracks?ids=${missing.join(",")}`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Request failed");
-        return res.json() as Promise<Track[]>;
-      })
-      .then((tracks) =>
-        setCache((prev) => ({
-          ...prev,
-          ...Object.fromEntries(tracks.map((t) => [t.id, t])),
-        })),
-      )
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [likesReady, likedIds]);
-
-  // Most recently liked first
-  const tracks = useMemo(
-    () =>
-      [...likedIds]
-        .reverse()
-        .map((id) => cache[id])
-        .filter((t): t is Track => Boolean(t)),
-    [likedIds, cache],
-  );
-
-  if (!likesReady || loading) return <ListSkeleton />;
+  if (!ready) return <ListSkeleton />;
 
   return (
     <>
@@ -71,11 +31,18 @@ export default function LikedSongs() {
         </div>
       </div>
 
-      {error && tracks.length === 0 ? (
-        <p className="text-fg-2">
-          Couldn&apos;t load your liked songs. Try refreshing.
-        </p>
-      ) : tracks.length === 0 ? (
+      {error && (
+        <div className="mb-6">
+          <LoadError
+            message="Some of your songs couldn't be loaded."
+            onRetry={retry}
+          />
+        </div>
+      )}
+
+      {tracks.length > 0 ? (
+        <TrackList tracks={tracks} />
+      ) : likedCount === 0 ? (
         <div className="rounded-2xl border border-white/8 bg-surface p-8 text-center">
           <p className="mb-1 font-semibold">No liked songs yet</p>
           <p className="mb-5 text-sm text-fg-2">
@@ -89,7 +56,11 @@ export default function LikedSongs() {
           </Link>
         </div>
       ) : (
-        <TrackList tracks={tracks} />
+        !error && (
+          <p className="text-sm text-fg-2">
+            Your liked songs are no longer available to stream.
+          </p>
+        )
       )}
     </>
   );

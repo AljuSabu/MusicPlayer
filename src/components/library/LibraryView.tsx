@@ -17,6 +17,7 @@ import LibraryGrid from "./LibraryGrid";
 import LibraryList from "./LibraryList";
 import LibraryEmpty from "./LibraryEmpty";
 import LibrarySkeleton from "./LibrarySkeleton";
+import LoadError from "@/components/LoadError";
 
 type ViewMode = "grid" | "list";
 
@@ -30,7 +31,7 @@ const emptyNotes: Record<LibraryFilter, string> = {
 };
 
 export default function LibraryView() {
-  const { tracks, likedCount, ready, error } = useLikedTracks();
+  const { tracks, likedCount, ready, error, retry } = useLikedTracks();
   const { currentTrack, isPlaying, playTrack, togglePlay } = usePlayer();
 
   const [filter, setFilter] = useState<LibraryFilter>("all");
@@ -99,6 +100,13 @@ export default function LibraryView() {
   return (
     <div className="space-y-8 pb-16">
       {header}
+
+      {error && (
+        <LoadError
+          message="Some of your liked songs couldn't be loaded, so parts of your library may be missing."
+          onRetry={retry}
+        />
+      )}
 
       {/* Controls: filter chips, sort, view toggle */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/6 bg-surface/50 p-2 sm:p-3">
