@@ -14,12 +14,16 @@ const REVALIDATE_SECONDS = process.env.NODE_ENV === "production" ? 3600 : 0;
 
 type Params = Record<string, string | number>;
 
+type RequestOptions = { noStore?: boolean };
+
 async function jamendoRequest<T>(
   endpoint: string,
   params: Params = {},
+  options: RequestOptions = {},
 ): Promise<T[]> {
   const clientId = process.env.JAMENDO_CLIENT_ID?.trim();
-  if (!clientId) throw new Error("Missing JAMENDO_CLIENT_ID in .env.local");
+  if (!clientId)
+    throw new Error("Missing JAMENDO_CLIENT_ID in environment variables");
 
   const query = new URLSearchParams({
     client_id: clientId,
@@ -29,9 +33,12 @@ async function jamendoRequest<T>(
     ),
   });
 
-  const res = await fetch(`${BASE_URL}/${endpoint}/?${query}`, {
-    next: { revalidate: REVALIDATE_SECONDS },
-  });
+  const res = await fetch(
+    `${BASE_URL}/${endpoint}/?${query}`,
+    options.noStore
+      ? { cache: "no-store" }
+      : { next: { revalidate: REVALIDATE_SECONDS } },
+  );
   if (!res.ok) throw new Error(`Jamendo request failed: ${res.status}`);
 
   const data: JamendoResponse<T> = await res.json();
@@ -41,13 +48,20 @@ async function jamendoRequest<T>(
   return data.results;
 }
 
-async function fetchTracks(params: Params): Promise<Track[]> {
-  const results = await jamendoRequest<Track>("tracks", {
-    imagesize: "300",
-    audioformat: "mp32",
-    type: "single albumtrack",
-    ...params,
-  });
+async function fetchTracks(
+  params: Params,
+  options?: RequestOptions,
+): Promise<Track[]> {
+  const results = await jamendoRequest<Track>(
+    "tracks",
+    {
+      imagesize: "300",
+      audioformat: "mp32",
+      type: "single albumtrack",
+      ...params,
+    },
+    options,
+  );
   // Keep only the fields to use
   return results.map((t) => ({
     id: t.id,
@@ -66,13 +80,18 @@ async function fetchTracks(params: Params): Promise<Track[]> {
 
 /* ---------- Tracks ---------- */
 
-export function getFeaturedTracks(limit = 12) {
-  return fetchTracks({
+export async function getFeaturedTracks(limit = 12): Promise<Track[]> {
+  const featured = await fetchTracks({
     featured: 1,
     order: "popularity_week",
     groupby: "artist_id",
     limit,
-  });
+  }).catch(() => [] as Track[]);
+
+  if (featured.length > 0) return featured;
+
+  // Fallback so the top of Home is never empty
+  return fetchTracks({ order: "popularity_week", groupby: "artist_id", limit });
 }
 
 export function getTrendingTracks(limit = 10) {
@@ -97,7 +116,11 @@ export function searchTracks(query: string, limit = 20) {
 
 export function getTracksByIds(ids: string[]) {
   if (ids.length === 0) return Promise.resolve([] as Track[]);
-  return fetchTracks({ id: ids.join(" "), limit: Math.min(ids.length, 200) });
+  // No server cache: these lists are per-user and a cached bad response would stick around
+  return fetchTracks(
+    { id: ids.join(" "), limit: Math.min(ids.length, 200) },
+    { noStore: true },
+  );
 }
 
 /* ---------- Artists, albums, playlists ---------- */

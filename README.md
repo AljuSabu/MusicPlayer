@@ -12,7 +12,7 @@ The application integrates with the **Jamendo Music API** to fetch music data an
 
 # 🚀 Live Demo
 
-🔗 **Live Website:** [Live@Vercel](https://music-player-4tioggckh-aljusabus-projects.vercel.app/)
+🔗 **Live Website:** [Live@Vercel](https://music-player-iota-eight-91.vercel.app/)
 
 ---
 

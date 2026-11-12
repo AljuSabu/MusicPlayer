@@ -13,7 +13,8 @@ export default async function ShelfSection({ title, load, href }: Props) {
   let tracks: Track[];
   try {
     tracks = await load();
-  } catch {
+  } catch (err) {
+    console.error(`[ShelfSection: ${title}] failed to load`, err);
     tracks = [];
   }
   if (tracks.length === 0) return null;
