@@ -11,6 +11,8 @@ import {
   type RefObject,
 } from "react";
 import type { Track } from "@/types/music";
+import { lookupTrack, registerTracks } from "@/lib/track-registry";
+import { forgetTrack, saveTracks } from "@/lib/liked-store";
 
 type PlayerContextValue = {
   currentTrack: Track | null;
@@ -102,6 +104,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         return;
       }
       const list = newQueue && newQueue.length > 0 ? newQueue : [track];
+      registerTracks(list);
       const index = Math.max(
         0,
         list.findIndex((t) => t.id === track.id),
@@ -115,6 +118,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const playAt = useCallback((index: number) => setQueueIndex(index), []);
 
   const addToQueue = useCallback((tracks: Track[]) => {
+    registerTracks(tracks);
     setQueue((prev) => {
       const existing = new Set(prev.map((t) => t.id));
       return [...prev, ...tracks.filter((t) => !existing.has(t.id))];
@@ -165,9 +169,19 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   const toggleLike = useCallback((id: string) => {
     setLikedIds((prevIds) => {
-      const updated = prevIds.includes(id)
-        ? prevIds.filter((x) => x !== id)
-        : [...prevIds, id];
+      const liking = !prevIds.includes(id);
+
+      // Keep a copy of the song so Liked Songs never needs the API for it
+      if (liking) {
+        const track = lookupTrack(id);
+        if (track) saveTracks([track]);
+      } else {
+        forgetTrack(id);
+      }
+
+      const updated = liking
+        ? [...prevIds, id]
+        : prevIds.filter((x) => x !== id);
       try {
         localStorage.setItem("vibra:liked", JSON.stringify(updated));
       } catch {
