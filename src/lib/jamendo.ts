@@ -81,16 +81,17 @@ async function fetchTracks(
 /* ---------- Tracks ---------- */
 
 export async function getFeaturedTracks(limit = 12): Promise<Track[]> {
-  const featured = await fetchTracks({
-    featured: 1,
-    order: "popularity_week",
+  // Jamendo's `featured=1` set comes back empty when requested from the production
+  // server, so the highlights use a different ranking (buzzrate) instead.
+  const buzzing = await fetchTracks({
+    order: "buzzrate",
     groupby: "artist_id",
     limit,
   }).catch(() => [] as Track[]);
 
-  if (featured.length > 0) return featured;
+  if (buzzing.length > 0) return buzzing;
 
-  // Fallback so the top of Home is never empty
+  // Last resort so the top of Home is never empty
   return fetchTracks({ order: "popularity_week", groupby: "artist_id", limit });
 }
 

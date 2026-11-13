@@ -1,4 +1,4 @@
-import { connection, NextResponse } from 'next/server';
+import { connection, NextResponse } from "next/server";
 
 type Probe = {
   headers?: {
@@ -10,8 +10,12 @@ type Probe = {
 };
 
 const tests: Record<string, string> = {
-  plain: 'limit=1',
-  featured: 'limit=1&featured=1&order=popularity_week&groupby=artist_id',
+  plain: "limit=1",
+  featured: "limit=1&featured=1&order=popularity_week&groupby=artist_id",
+  buzzrate:
+    "limit=3&order=buzzrate&groupby=artist_id&type=single+albumtrack&audioformat=mp32",
+  trending:
+    "limit=3&order=popularity_week&groupby=artist_id&type=single+albumtrack&audioformat=mp32",
 };
 
 export async function GET() {
@@ -21,7 +25,7 @@ export async function GET() {
   if (!clientId) {
     return NextResponse.json({
       hasKey: false,
-      hint: 'JAMENDO_CLIENT_ID is not set for this deployment. Add it for the Production environment and redeploy.',
+      hint: "JAMENDO_CLIENT_ID is not set for this deployment. Add it for the Production environment and redeploy.",
     });
   }
 
@@ -32,7 +36,7 @@ export async function GET() {
     try {
       const res = await fetch(
         `https://api.jamendo.com/v3.0/tracks/?client_id=${encodeURIComponent(clientId.trim())}&format=json&${extra}`,
-        { cache: 'no-store', signal: AbortSignal.timeout(8000) }
+        { cache: "no-store", signal: AbortSignal.timeout(8000) },
       );
       const text = await res.text();
 
@@ -55,7 +59,8 @@ export async function GET() {
     } catch (err) {
       results[name] = {
         ms: Date.now() - started,
-        error: err instanceof Error ? `${err.name}: ${err.message}` : String(err),
+        error:
+          err instanceof Error ? `${err.name}: ${err.message}` : String(err),
       };
     }
   }

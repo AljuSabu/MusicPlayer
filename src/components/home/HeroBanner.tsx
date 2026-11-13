@@ -20,7 +20,7 @@ export default function HeroBanner({ tracks }: { tracks: Track[] }) {
         <div className="max-w-xl space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-white/8 bg-[#0B0F0E] px-3 py-1 text-xs font-semibold text-[#4CD964]">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>FEATURED PLAYLIST · HANDPICKED</span>
+            <span>BUZZING THIS WEEK</span>
           </div>
 
           <h2 className="text-[32px] font-bold leading-9.5 tracking-tight text-white sm:text-[44px] sm:leading-12.5">
@@ -28,8 +28,8 @@ export default function HeroBanner({ tracks }: { tracks: Track[] }) {
           </h2>
 
           <p className="max-w-lg text-xs leading-relaxed text-[#A3B1AC] sm:text-sm">
-            Hand-picked tracks from independent artists, freshly selected and
-            free to stream.
+            Tracks from independent artists that are picking up momentum with
+            listeners right now, free to stream.
           </p>
 
           <div className="flex items-center gap-2 pt-1 font-mono text-xs text-[#6B7A75]">
