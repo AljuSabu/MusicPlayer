@@ -95,10 +95,6 @@ export async function getFeaturedTracks(limit = 12): Promise<Track[]> {
   return fetchTracks({ order: "popularity_week", groupby: "artist_id", limit });
 }
 
-export function getTrendingTracks(limit = 10) {
-  return fetchTracks({ order: "popularity_week", groupby: "artist_id", limit });
-}
-
 export function getNewReleases(limit = 10) {
   return fetchTracks({
     order: "releasedate_desc",
@@ -115,13 +111,43 @@ export function searchTracks(query: string, limit = 20) {
   return fetchTracks({ search: query, limit });
 }
 
-export function getTracksByIds(ids: string[]) {
-  if (ids.length === 0) return Promise.resolve([] as Track[]);
-  // No server cache: these lists are per-user and a cached bad response would stick around
-  return fetchTracks(
-    { id: ids.join(" "), limit: Math.min(ids.length, 200) },
-    { noStore: true },
+export async function getTracksByIds(ids: string[]): Promise<Track[]> {
+  if (ids.length === 0) return [];
+
+  const found = await fetchTracks(
+    { id: ids.join(' '), limit: Math.min(ids.length, 200) },
+    { noStore: true }
+  ).catch(() => [] as Track[]);
+
+  const have = new Set(found.map((t) => t.id));
+  const missing = ids.filter((id) => !have.has(id)).slice(0, 20);
+  if (missing.length === 0) return found;
+
+  // Batch lookups sometimes come back short. Ask for the stragglers individually.
+  const singles = await Promise.all(
+    missing.map((id) => fetchTracks({ id, limit: 1 }, { noStore: true }).catch(() => [] as Track[]))
   );
+  return [...found, ...singles.flat()];
+}
+
+async function firstNonEmpty(attempts: Array<() => Promise<Track[]>>): Promise<Track[]> {
+  for (const attempt of attempts) {
+    try {
+      const tracks = await attempt();
+      if (tracks.length > 0) return tracks;
+    } catch {
+      // try the next one
+    }
+  }
+  return [];
+}
+
+export function getTrendingTracks(limit = 10) {
+  return firstNonEmpty([
+    () => fetchTracks({ order: 'popularity_week', groupby: 'artist_id', limit }),
+    () => fetchTracks({ order: 'popularity_month', groupby: 'artist_id', limit }),
+    () => fetchTracks({ order: 'listens_week', groupby: 'artist_id', limit }),
+  ]);
 }
 
 /* ---------- Artists, albums, playlists ---------- */

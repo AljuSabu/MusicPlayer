@@ -12,6 +12,10 @@ export async function GET(request: Request) {
 
   try {
     const tracks = await getTracksByIds(ids);
+    console.log("[api/tracks]", {
+      requested: ids.length,
+      returned: tracks.length,
+    });
     return NextResponse.json(tracks, {
       headers: { "Cache-Control": "no-store" },
     });
