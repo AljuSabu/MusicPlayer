@@ -5,6 +5,8 @@ import { Play, Pause, Heart } from "lucide-react";
 import type { Track } from "@/types/music";
 import { usePlayer } from "@/components/PlayerProvider";
 import { formatTime } from "@/lib/utils";
+import { useEffect } from "react";
+import { registerTracks } from "@/lib/track-registry";
 
 export default function TrackList({ tracks }: { tracks: Track[] }) {
   const {
@@ -15,6 +17,10 @@ export default function TrackList({ tracks }: { tracks: Track[] }) {
     isLiked,
     toggleLike,
   } = usePlayer();
+
+  useEffect(() => {
+    registerTracks(tracks);
+  }, [tracks]);
 
   return (
     <ul className="space-y-2">
