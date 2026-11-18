@@ -29,14 +29,14 @@ function SongList({
 }: SongListProps) {
   return (
     <div className="flex flex-1 flex-col">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-white">Songs</h2>
+      <div className="mb-3 flex items-center justify-between sm:mb-4">
+        <h2 className="text-base font-bold text-white sm:text-xl">Songs</h2>
         <span className="text-xs text-[#6B7A75]">
           {songs.length} matching tracks
         </span>
       </div>
 
-      <ul className="flex flex-1 flex-col gap-1.5">
+      <ul className="flex flex-1 flex-col gap-1 sm:gap-1.5">
         {songs.map((song, i) => {
           const isCurrent = currentId === song.id;
           const showPause = isCurrent && isPlaying;
@@ -46,20 +46,20 @@ function SongList({
             <li
               key={song.id}
               onClick={() => onToggle(song)}
-              className={`group flex cursor-pointer items-center justify-between rounded-xl border px-4 py-3 transition-colors ${
+              className={`group flex min-h-12 cursor-pointer items-center justify-between rounded-xl border py-1 pl-3 pr-1 transition-colors sm:px-4 sm:py-3 ${
                 isCurrent
                   ? "border-[#4CD964]/40 bg-[#1B2421]"
-                  : "border-transparent bg-surface/60 hover:border-white/8 hover:bg-[#1B2421]"
+                  : "border-transparent bg-surface/60 hover:border-white/8 hover:bg-[#1B2421] active:bg-[#1B2421]"
               }`}
             >
-              <div className="flex min-w-0 items-center gap-3.5">
+              <div className="flex min-w-0 items-center gap-3 sm:gap-3.5">
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     onToggle(song);
                   }}
                   aria-label={`${showPause ? "Pause" : "Play"} ${song.name}`}
-                  className="w-6 shrink-0 text-center font-mono text-xs text-[#6B7A75]"
+                  className="w-5 shrink-0 text-center font-mono text-xs text-[#6B7A75] sm:w-6"
                 >
                   {showPause ? (
                     <span className="flex h-5 items-end justify-center gap-0.5">
@@ -79,7 +79,7 @@ function SongList({
                   )}
                 </button>
 
-                <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-[10px] border border-white/8 bg-[#1B2421]">
+                <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg border border-white/8 bg-[#1B2421] sm:h-11 sm:w-11 sm:rounded-[10px]">
                   <Image
                     src={song.image}
                     alt=""
@@ -91,19 +91,19 @@ function SongList({
 
                 <div className="min-w-0">
                   <h3
-                    className={`truncate text-sm font-semibold ${
+                    className={`truncate text-xs font-semibold sm:text-sm ${
                       isCurrent ? "text-[#4CD964]" : "text-white"
                     }`}
                   >
                     {song.name}
                   </h3>
-                  <p className="truncate text-xs text-[#A3B1AC]">
+                  <p className="truncate text-[11px] text-[#A3B1AC] sm:text-xs">
                     {song.artist_name}
                   </p>
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-4 pl-3">
+              <div className="flex shrink-0 items-center gap-0.5 pl-2 sm:gap-4 sm:pl-3">
                 {song.album_id && song.album_name && (
                   <Link
                     href={`/album/${song.album_id}`}
@@ -115,6 +115,7 @@ function SongList({
                   </Link>
                 )}
 
+                {/* 44px tap target on phones */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -123,14 +124,14 @@ function SongList({
                   aria-label={
                     liked ? "Remove from Liked Songs" : "Save to Liked Songs"
                   }
-                  className={`rounded-full p-1.5 transition-colors ${
+                  className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors sm:h-8 sm:w-8 ${
                     liked ? "text-[#4CD964]" : "text-[#6B7A75] hover:text-white"
                   }`}
                 >
                   <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
                 </button>
 
-                <span className="w-9 text-right font-mono text-xs text-[#A3B1AC]">
+                <span className="w-9 text-right font-mono text-[11px] text-[#A3B1AC] sm:text-xs">
                   {formatTime(song.duration)}
                 </span>
               </div>
@@ -168,25 +169,90 @@ export default function SongResults({
     );
   }
 
-  // All tab: top result card + 5 songs (same as before)
+  // All tab: top result + songs
   const [top, ...songs] = tracks;
   const topShowsPause = currentId === top.id && isPlaying;
   const topLiked = isLiked(top.id);
 
   return (
-    <div className="grid grid-cols-1 items-stretch gap-6 lg:grid-cols-12">
+    <div className="grid grid-cols-1 items-stretch gap-5 lg:grid-cols-12 lg:gap-6">
       {/* Top result */}
       <div className="flex flex-col lg:col-span-5">
-        <h2 className="mb-4 text-xl font-bold text-white">Top result</h2>
+        <h2 className="mb-3 text-base font-bold text-white sm:mb-4 sm:text-xl">
+          Top result
+        </h2>
 
-        <div className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-white/8 bg-surface p-6 sm:p-7">
+        {/* Phones and tablets: compact row */}
+        <div className="flex items-center gap-1 rounded-2xl border border-white/8 bg-surface p-3 lg:hidden">
+          <button
+            type="button"
+            onClick={() => toggle(top)}
+            aria-label={`${topShowsPause ? "Pause" : "Play"} ${top.name}`}
+            className="flex min-w-0 flex-1 items-center gap-3 text-left"
+          >
+            <span className="relative h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-white/12 bg-[#1B2421]">
+              <Image
+                src={top.image}
+                alt=""
+                fill
+                sizes="56px"
+                className="object-cover"
+              />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span
+                className={`block truncate text-sm font-bold ${
+                  topShowsPause ? "text-[#4CD964]" : "text-white"
+                }`}
+              >
+                {top.name}
+              </span>
+              <span className="mt-0.5 block truncate text-xs text-[#A3B1AC]">
+                {top.artist_name}
+              </span>
+              <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-white/6 px-2 py-0.5 text-[10px] font-bold text-[#4CD964]">
+                <Sparkles className="h-2.5 w-2.5" />
+                Song
+              </span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toggleLike(top.id)}
+            aria-label={
+              topLiked ? "Remove from Liked Songs" : "Save to Liked Songs"
+            }
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors ${
+              topLiked ? "text-[#4CD964]" : "text-[#A3B1AC]"
+            }`}
+          >
+            <Heart className={`h-5 w-5 ${topLiked ? "fill-current" : ""}`} />
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toggle(top)}
+            aria-label={topShowsPause ? "Pause top result" : "Play top result"}
+            className="brand-gradient flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-[#0B0F0E] shadow-[0_0_16px_rgba(76,217,100,0.4)] transition-transform active:scale-95"
+          >
+            {topShowsPause ? (
+              <Pause className="h-5 w-5 fill-current" />
+            ) : (
+              <Play className="h-5 w-5 translate-x-0.5 fill-current" />
+            )}
+          </button>
+        </div>
+
+        {/* Large screens: the big card */}
+        <div className="relative hidden flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-white/8 bg-surface p-7 lg:flex">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-12 -top-12 h-48 w-48 rounded-full bg-[radial-gradient(circle,rgba(76,217,100,0.18),transparent_70%)]"
           />
 
           <div className="relative">
-            <div className="relative mb-6 h-28 w-28 overflow-hidden rounded-2xl border border-white/12 bg-[#1B2421] sm:h-32 sm:w-32">
+            <div className="relative mb-6 h-32 w-32 overflow-hidden rounded-2xl border border-white/12 bg-[#1B2421]">
               <Image
                 src={top.image}
                 alt=""
@@ -201,11 +267,11 @@ export default function SongResults({
               <span>Song</span>
             </div>
 
-            <h3 className="line-clamp-2 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+            <h3 className="line-clamp-2 text-3xl font-extrabold tracking-tight text-white">
               {top.name}
             </h3>
 
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#A3B1AC] sm:text-sm">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-[#A3B1AC]">
               <Link
                 href={`/artist/${top.artist_id}`}
                 prefetch={false}
