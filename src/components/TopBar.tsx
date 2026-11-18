@@ -1,65 +1,20 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
   ChevronRight,
-  Search,
-  X,
   ChevronDown,
   Settings,
   LogOut,
 } from "lucide-react";
+import SearchBox from "@/components/SearchBox";
 
 export default function TopBar() {
   const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
-  const urlQuery = searchParams.get("q") ?? "";
-  const [query, setQuery] = useState(urlQuery); // starts from the URL, e.g. after a refresh
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Mirror the URL into the box when it changes from outside the box
-  // (recent-search chips, links, Back/Forward, leaving the search page).
-  // Skipped while the box is focused so it never overwrites what you're typing.
-  useEffect(() => {
-    if (document.activeElement === inputRef.current) return;
-    if (timerRef.current) clearTimeout(timerRef.current);
-    setQuery(urlQuery);
-  }, [urlQuery]);
-
-  // Cancel a pending search if the component unmounts
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  // Called only when the user types: wait 400ms, then update the URL
-  const handleChange = (value: string) => {
-    setQuery(value);
-    if (timerRef.current) clearTimeout(timerRef.current);
-
-    timerRef.current = setTimeout(() => {
-      const trimmed = value.trim();
-      if (trimmed === urlQuery) return;
-
-      if (trimmed) {
-        const url = `/search?q=${encodeURIComponent(trimmed)}`;
-        // replace while already searching, so Back doesn't step through every keystroke
-        if (pathname === "/search") router.replace(url);
-        else router.push(url);
-      } else if (pathname === "/search") {
-        router.replace("/search");
-      }
-    }, 400);
-  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -76,8 +31,8 @@ export default function TopBar() {
   }, []);
 
   return (
-    <header className="relative z-40 flex h-16 shrink-0 items-center justify-between gap-6 border-b border-white/8 bg-[#0B0F0E] px-6 sm:px-8">
-      {/* Left Section: Back/Forward Circular Buttons */}
+    <header className="relative z-40 hidden h-16 shrink-0 items-center justify-between gap-6 border-b border-white/8 bg-[#0B0F0E] px-8 md:flex">
+      {/* Back / Forward */}
       <div className="flex shrink-0 items-center gap-2">
         <button
           onClick={() => router.back()}
@@ -96,35 +51,12 @@ export default function TopBar() {
         </button>
       </div>
 
-      {/* Center: Large Pill-Shaped Search Input */}
+      {/* Search */}
       <div className="mx-auto max-w-xl flex-1">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#6B7A75]" />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => handleChange(e.target.value)}
-            placeholder="Search artists, tracks, playlists, genres..."
-            aria-label="Search Vibra music streaming catalog"
-            className="w-full rounded-full border border-white/8 bg-surface py-2.5 pl-11 pr-10 text-xs font-normal text-white placeholder-[#6B7A75] transition-all duration-150 focus:border-[#4CD964] focus:outline-none focus:ring-2 focus:ring-[#4CD964]/20 sm:text-sm"
-          />
-          {query && (
-            <button
-              onClick={() => {
-                handleChange("");
-                inputRef.current?.focus();
-              }}
-              aria-label="Clear search text"
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-[#6B7A75] transition-colors hover:bg-white/8 hover:text-white"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
-          )}
-        </div>
+        <SearchBox />
       </div>
 
-      {/* Right Section: User Avatar with Dropdown */}
+      {/* User menu */}
       <div
         className="relative flex shrink-0 items-center gap-3"
         ref={dropdownRef}
@@ -135,7 +67,6 @@ export default function TopBar() {
           aria-label="User account menu"
           className="flex items-center gap-2 rounded-full border border-white/8 bg-surface p-1.5 pr-2.5 transition-colors duration-150 hover:border-white/20 hover:bg-[#1B2421]"
         >
-          {/* Avatar with Brand Gradient Ring */}
           <div className="brand-gradient flex h-7 w-7 items-center justify-center rounded-full p-0.5">
             <div className="flex h-full w-full items-center justify-center rounded-full bg-[#0B0F0E] text-xs font-bold text-[#4CD964]">
               AR
@@ -152,7 +83,6 @@ export default function TopBar() {
           />
         </button>
 
-        {/* User Dropdown Menu */}
         {isDropdownOpen && (
           <div className="animate-fadeIn absolute right-0 top-12 z-50 w-64 rounded-2xl border border-white/12 bg-surface py-2 shadow-[0_16px_40px_rgba(0,0,0,0.8)]">
             <div className="border-b border-white/6 px-4 py-2.5">
