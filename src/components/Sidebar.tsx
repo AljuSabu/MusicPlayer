@@ -24,7 +24,7 @@ export default function Sidebar() {
   return (
     <aside
       aria-label="Main Navigation Sidebar"
-      className="row-span-2 z-30 flex h-full w-60 shrink-0 select-none flex-col justify-between border-r border-white/8 bg-[#0B0F0E]"
+      className="z-30 hidden h-full w-60 shrink-0 select-none flex-col justify-between border-r border-white/8 bg-[#0B0F0E] md:flex"
     >
       {/* Top Branding Section */}
       <div className="p-6 pb-2">
@@ -49,11 +49,11 @@ export default function Sidebar() {
             <Link
               key={item.href}
               href={item.href}
-              aria-current={isActive ? 'page' : undefined}
+              aria-current={isActive ? "page" : undefined}
               className={`group relative flex w-full items-center gap-3.5 rounded-lg px-4 py-2.5 text-left text-xs font-semibold transition-all duration-150 ${
                 isActive
-                  ? 'bg-[#1B2421] text-white shadow-[0_2px_12px_rgba(0,0,0,0.3)]'
-                  : 'text-[#A3B1AC] hover:bg-white/3 hover:text-white'
+                  ? "bg-[#1B2421] text-white shadow-[0_2px_12px_rgba(0,0,0,0.3)]"
+                  : "text-[#A3B1AC] hover:bg-white/3 hover:text-white"
               }`}
             >
               {/* Green gradient indicator bar for active item */}
@@ -66,7 +66,9 @@ export default function Sidebar() {
 
               <Icon
                 className={`h-4 w-4 transition-colors ${
-                  isActive ? 'text-[#4CD964]' : 'text-[#A3B1AC] group-hover:text-white'
+                  isActive
+                    ? "text-[#4CD964]"
+                    : "text-[#A3B1AC] group-hover:text-white"
                 }`}
               />
               <span className="truncate">{item.label}</span>
@@ -82,7 +84,9 @@ export default function Sidebar() {
       <div className="min-h-0 flex-1 space-y-1 overflow-y-auto px-3 py-4">
         <div className="flex items-center justify-between px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-[#6B7A75]">
           <span>Your Playlists</span>
-          <span className="font-mono text-[10px] text-[#A3B1AC]">{playlists.length}</span>
+          <span className="font-mono text-[10px] text-[#A3B1AC]">
+            {playlists.length}
+          </span>
         </div>
 
         <div className="space-y-1">
@@ -94,8 +98,8 @@ export default function Sidebar() {
                 href={`/playlist/${pl.id}`}
                 className={`group flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left transition-colors duration-150 ${
                   isSelected
-                    ? 'bg-[#1B2421] text-white'
-                    : 'text-[#A3B1AC] hover:bg-white/3 hover:text-white'
+                    ? "bg-[#1B2421] text-white"
+                    : "text-[#A3B1AC] hover:bg-white/3 hover:text-white"
                 }`}
               >
                 {/* Small Cover Thumbnail */}
@@ -108,13 +112,13 @@ export default function Sidebar() {
                 <div className="min-w-0 flex-1">
                   <div
                     className={`truncate text-xs font-medium ${
-                      isSelected ? 'text-[#4CD964]' : 'group-hover:text-white'
+                      isSelected ? "text-[#4CD964]" : "group-hover:text-white"
                     }`}
                   >
                     {pl.name}
                   </div>
                   <div className="truncate text-[10px] text-[#6B7A75]">
-                    {pl.creator || 'Playlist'} · {pl.trackCount} tracks
+                    {pl.creator || "Playlist"} · {pl.trackCount} tracks
                   </div>
                 </div>
               </Link>
