@@ -10,6 +10,7 @@ import AlbumsSection from "@/components/search/AlbumsSection";
 import PlaylistsSection from "@/components/search/PlaylistsSection";
 import { SongsSkeleton } from "@/components/search/Skeletons";
 import { ShelfSkeleton } from "@/components/home/Skeletons";
+import SearchBox from "@/components/SearchBox";
 
 type SearchParams = Promise<{ q?: string; type?: string }>;
 
@@ -20,6 +21,13 @@ export default function SearchPage({
 }) {
   return (
     <div className="py-4">
+      {/* Phones only: on desktop the search box is in the top bar */}
+      <Suspense fallback={<div className="mb-5 h-11 md:hidden" />}>
+        <div className="mb-5 md:hidden">
+          <SearchBox />
+        </div>
+      </Suspense>
+
       <Suspense fallback={<SongsSkeleton />}>
         <SearchContent searchParams={searchParams} />
       </Suspense>
