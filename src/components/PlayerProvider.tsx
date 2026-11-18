@@ -27,6 +27,7 @@ type PlayerContextValue = {
   audioRef: RefObject<HTMLAudioElement | null>;
   likedIds: string[];
   likesReady: boolean;
+  nowPlayingOpen: boolean;
   playTrack: (track: Track, queue?: Track[]) => void;
   playAt: (index: number) => void;
   togglePlay: () => void;
@@ -40,6 +41,8 @@ type PlayerContextValue = {
   isLiked: (id: string) => boolean;
   toggleLike: (id: string) => void;
   addToQueue: (tracks: Track[]) => void;
+  openNowPlaying: () => void;
+  closeNowPlaying: () => void;
 };
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -56,6 +59,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [isRepeat, setIsRepeat] = useState(false);
   const [likedIds, setLikedIds] = useState<string[]>([]);
   const [likesReady, setLikesReady] = useState(false);
+  const [nowPlayingOpen, setNowPlayingOpen] = useState(false);
 
   const currentTrack = queueIndex >= 0 ? (queue[queueIndex] ?? null) : null;
   const trackId = currentTrack?.id;
@@ -89,6 +93,9 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }
     setLikesReady(true);
   }, []);
+
+  const openNowPlaying = useCallback(() => setNowPlayingOpen(true), []);
+  const closeNowPlaying = useCallback(() => setNowPlayingOpen(false), []);
 
   const restart = useCallback(() => {
     const audio = audioRef.current;
@@ -211,6 +218,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     audioRef,
     likedIds,
     likesReady,
+    nowPlayingOpen,
     playTrack,
     playAt,
     togglePlay,
@@ -224,6 +232,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     isLiked: (id) => likedIds.includes(id),
     toggleLike,
     addToQueue,
+    openNowPlaying,
+    closeNowPlaying,
   };
 
   return (
