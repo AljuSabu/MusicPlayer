@@ -11,31 +11,36 @@ export default function QuickTiles({ tracks }: { tracks: Track[] }) {
   const tiles = tracks.slice(0, 7);
 
   return (
-    <section className="mb-10">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
+    <section className="mb-6 sm:mb-10">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 lg:grid-cols-4">
         {/* Liked Songs tile */}
         <Link
           href="/liked"
           prefetch={false}
-          className="group flex h-16 items-center gap-3.5 overflow-hidden rounded-lg border border-white/8 bg-surface transition-colors duration-200 hover:border-white/18 hover:bg-[#1B2421]"
+          className="group flex h-12 items-center gap-2.5 overflow-hidden rounded-lg border border-white/8 bg-surface transition-colors duration-200 hover:border-white/18 hover:bg-[#1B2421] active:bg-[#1B2421] sm:h-16 sm:gap-3.5"
         >
-          <div className="brand-gradient flex h-16 w-16 shrink-0 items-center justify-center">
-            <Heart className="h-6 w-6 fill-[#0B0F0E] text-[#0B0F0E]" />
+          <div className="brand-gradient flex h-12 w-12 shrink-0 items-center justify-center sm:h-16 sm:w-16">
+            <Heart className="h-5 w-5 fill-[#0B0F0E] text-[#0B0F0E] sm:h-6 sm:w-6" />
           </div>
           <span className="flex-1 truncate pr-2 text-xs font-bold text-white sm:text-[13px]">
             Liked Songs
           </span>
         </Link>
 
-        {tiles.map((track) => {
-          const showPause = currentId === track.id && isPlaying;
+        {tiles.map((track, i) => {
+          const isCurrent = currentId === track.id;
+          const showPause = isCurrent && isPlaying;
+
           return (
             <div
               key={track.id}
               onClick={() => toggle(track)}
-              className="group flex h-16 cursor-pointer items-center gap-3.5 overflow-hidden rounded-lg border border-white/8 bg-surface transition-colors duration-200 hover:border-white/18 hover:bg-[#1B2421]"
+              // Phones show 6 tiles in total (Liked Songs + 5); larger screens show all 8
+              className={`group h-12 cursor-pointer items-center gap-2.5 overflow-hidden rounded-lg border border-white/8 bg-surface transition-colors duration-200 hover:border-white/18 hover:bg-[#1B2421] active:bg-[#1B2421] sm:h-16 sm:gap-3.5 ${
+                i >= 5 ? "hidden sm:flex" : "flex"
+              }`}
             >
-              <div className="relative h-16 w-16 shrink-0 bg-[#1B2421]">
+              <div className="relative h-12 w-12 shrink-0 bg-[#1B2421] sm:h-16 sm:w-16">
                 <Image
                   src={track.image}
                   alt=""
@@ -45,13 +50,18 @@ export default function QuickTiles({ tracks }: { tracks: Track[] }) {
                 />
               </div>
 
-              <span className="flex-1 truncate pr-2 text-xs font-bold text-white sm:text-[13px]">
+              <span
+                className={`flex-1 truncate pr-2 text-xs font-bold sm:text-[13px] ${
+                  isCurrent ? "text-[#4CD964]" : "text-white"
+                }`}
+              >
                 {track.name}
               </span>
 
+              {/* Hidden on phones: the whole tile is the tap target and the title turns green */}
               <button
                 aria-label={`${showPause ? "Pause" : "Play"} ${track.name}`}
-                className={`brand-gradient mr-3 flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#0B0F0E] shadow-[0_0_16px_rgba(76,217,100,0.5)] transition-[opacity,transform] duration-200 ${
+                className={`brand-gradient mr-3 hidden h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#0B0F0E] shadow-[0_0_16px_rgba(76,217,100,0.5)] transition-[opacity,transform] duration-200 sm:flex ${
                   showPause
                     ? "scale-100 opacity-100"
                     : "scale-75 opacity-0 focus-visible:opacity-100 group-hover:scale-100 group-hover:opacity-100"
