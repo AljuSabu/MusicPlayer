@@ -210,3 +210,22 @@
   transform-origin: center;
   animation: pulse-wave 1.4s ease-in-out infinite;
 }
+
+/* Hide the scrollbar on horizontal scroll rows */
+@utility no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Applies on touch screens, where hover doesn't exist */
+@custom-variant touch (@media (hover: none));
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
