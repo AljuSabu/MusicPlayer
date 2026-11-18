@@ -63,7 +63,7 @@ export default function NowPlayingView({ onClose }: { onClose: () => void }) {
       role="dialog"
       aria-modal="true"
       aria-label="Now playing"
-      className="animate-fadeIn fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[#0B0F0E] selection:bg-[#4CD964]/30 selection:text-white"
+      className="animate-fadeIn fixed inset-0 z-50 flex flex-col overflow-y-auto pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] bg-[#0B0F0E] selection:bg-[#4CD964]/30 selection:text-white"
     >
       {/* Background: a tiny cover stretched to fill the screen gives a soft
           colour wash with no blur filters. */}

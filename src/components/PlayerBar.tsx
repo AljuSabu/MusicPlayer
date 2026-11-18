@@ -20,11 +20,6 @@ import {
 import { usePlayer } from "@/components/PlayerProvider";
 import { formatTime } from "@/lib/utils";
 import SeekBar from "./SeekBar";
-import dynamic from "next/dynamic";
-
-const NowPlayingView = dynamic(() => import("@/components/NowPlayingView"), {
-  ssr: false,
-});
 
 export default function PlayerBar() {
   const {
@@ -46,11 +41,11 @@ export default function PlayerBar() {
     toggleRepeat,
     isLiked,
     toggleLike,
+    openNowPlaying,
   } = usePlayer();
 
   const [showLyricsModal, setShowLyricsModal] = useState(false);
   const [showQueueModal, setShowQueueModal] = useState(false);
-  const [expanded, setExpanded] = useState(false);
 
   const hasTrack = currentTrack !== null;
   const liked = hasTrack && isLiked(currentTrack.id);
@@ -59,7 +54,7 @@ export default function PlayerBar() {
   return (
     <footer
       aria-label="Vibra Master Player"
-      className="relative z-50 col-span-2 flex h-22 select-none items-center justify-between border-t border-white/8 bg-surface px-4 sm:px-6"
+      className="relative z-50 flex h-22 select-none items-center justify-between border-t border-white/8 bg-surface px-4 sm:px-6"
     >
       {/* 1. Left Section: cover, title, artist, heart */}
       <div className="flex w-60 min-w-0 items-center gap-3.5 sm:w-70">
@@ -218,7 +213,7 @@ export default function PlayerBar() {
         </div>
 
         <button
-          onClick={() => setExpanded(true)}
+          onClick={openNowPlaying}
           disabled={!hasTrack}
           aria-label="Open full-screen player"
           className="rounded-full p-1.5 text-[#A3B1AC] transition-colors duration-150 hover:bg-white/4 hover:text-white disabled:opacity-40"
@@ -282,9 +277,6 @@ export default function PlayerBar() {
             </div>
           )}
         </div>
-      )}
-      {expanded && hasTrack && (
-        <NowPlayingView onClose={() => setExpanded(false)} />
       )}
     </footer>
   );
