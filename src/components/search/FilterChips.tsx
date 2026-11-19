@@ -13,7 +13,7 @@ export default function FilterChips({
   return (
     <nav
       aria-label="Filter search results"
-      className="mb-8 flex items-center gap-2 overflow-x-auto pb-1"
+      className="no-scrollbar -mx-4 mb-6 flex items-center gap-2 overflow-x-auto px-4 pb-1 md:mx-0 md:mb-8 md:px-0"
     >
       {filterTabs.map((tab) => {
         const isActive = tab.id === active;
@@ -25,7 +25,7 @@ export default function FilterChips({
             replace
             scroll={false}
             aria-current={isActive ? "page" : undefined}
-            className={`shrink-0 rounded-full px-5 py-2 text-xs font-semibold transition-[background-color,color,transform] active:scale-95 ${
+            className={`flex min-h-11 shrink-0 items-center rounded-full px-4 text-xs font-semibold transition-[background-color,color,transform] active:scale-95 sm:px-5 ${
               isActive
                 ? "brand-gradient font-bold text-[#0B0F0E] shadow-[0_0_12px_rgba(76,217,100,0.3)]"
                 : "border border-white/8 bg-surface text-[#A3B1AC] hover:bg-[#1B2421] hover:text-white"
