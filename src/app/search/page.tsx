@@ -60,7 +60,7 @@ async function SearchContent({ searchParams }: { searchParams: SearchParams }) {
     <>
       <SaveRecentSearch query={query} />
 
-      <h1 className="mb-6 text-3xl font-bold">
+      <h1 className="mb-4 text-2xl font-bold sm:mb-6 sm:text-3xl">
         Results for{" "}
         <span className="brand-gradient-text">&ldquo;{query}&rdquo;</span>
       </h1>
