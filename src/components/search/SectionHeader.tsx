@@ -10,9 +10,11 @@ export default function SectionHeader({
   seeAllHref?: string;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between">
+    <div className="mb-3 flex items-center justify-between sm:mb-4">
       <div>
-        <h2 className="text-xl font-bold tracking-tight text-white">{title}</h2>
+        <h2 className="text-base font-bold tracking-tight text-white sm:text-xl">
+          {title}
+        </h2>
         {subtitle && (
           <p className="mt-0.5 text-xs text-[#A3B1AC]">{subtitle}</p>
         )}
@@ -21,7 +23,7 @@ export default function SectionHeader({
         <Link
           href={seeAllHref}
           prefetch={false}
-          className="text-xs font-semibold text-[#4CD964] hover:underline"
+          className="-my-2 py-2 text-xs font-semibold text-[#4CD964] hover:underline"
         >
           See all
         </Link>
