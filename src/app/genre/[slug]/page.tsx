@@ -26,11 +26,16 @@ async function GenreContent({ params }: { params: Params }) {
   const genre = allGenres.find((g) => g.slug === slug);
   if (!genre) notFound();
 
-  const tracks = await getTracksByGenre(genre.slug, 30).catch(() => []);
+  const tracks = await getTracksByGenre(genre.slug, 30).catch((err) => {
+    console.error(`[genre/${genre.slug}] failed to load`, err);
+    return [];
+  });
 
   return (
     <>
-      <h1 className="mb-6 text-3xl font-bold">{genre.name}</h1>
+      <h1 className="mb-4 text-2xl font-bold sm:mb-6 sm:text-3xl">
+        {genre.name}
+      </h1>
       {tracks.length === 0 ? (
         <p className="text-fg-2">Couldn&apos;t load tracks right now.</p>
       ) : (
