@@ -51,7 +51,7 @@ async function AlbumContent({ params }: { params: Params }) {
         className="pointer-events-none absolute inset-x-0 -top-4 h-80 bg-linear-to-b from-[#1BC5A0]/20 via-[#4CD964]/8 to-transparent"
       />
 
-      <div className="relative space-y-10">
+      <div className="relative space-y-6 md:space-y-10">
         <AlbumHeader album={album} tracks={tracks} />
         <AlbumActions tracks={tracks} jamendoUrl={shareurl} />
         <AlbumTrackList tracks={tracks} />
