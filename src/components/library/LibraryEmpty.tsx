@@ -3,7 +3,7 @@ import { Compass, FolderHeart, Sparkles } from "lucide-react";
 
 export default function LibraryEmpty() {
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 rounded-3xl border border-white/6 bg-surface/40 px-4 py-10 text-center">
+    <div className="flex flex-col items-center justify-center space-y-4 rounded-3xl border border-white/6 bg-surface/40 px-4 py-8 text-center sm:py-10">
       <div className="relative flex h-28 w-28 items-center justify-center rounded-full">
         <div
           aria-hidden="true"
@@ -33,7 +33,7 @@ export default function LibraryEmpty() {
 
       <Link
         href="/search"
-        className="brand-gradient flex items-center gap-2 rounded-full px-6 py-2.5 text-xs font-bold text-[#0B0F0E] shadow-[0_0_20px_rgba(76,217,100,0.35)] transition-transform hover:scale-105 active:scale-95 sm:text-sm"
+        className="brand-gradient flex min-h-11 items-center gap-2 rounded-full px-6 text-xs font-bold text-[#0B0F0E] shadow-[0_0_20px_rgba(76,217,100,0.35)] transition-transform hover:scale-105 active:scale-95 sm:text-sm"
       >
         <Compass className="h-4 w-4 stroke-[2.5]" />
         <span>Find music</span>

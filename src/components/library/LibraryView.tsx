@@ -61,8 +61,8 @@ export default function LibraryView() {
   if (!ready) return <LibrarySkeleton />;
 
   const header = (
-    <div className="border-b border-white/6 pb-4">
-      <h1 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+    <div className="border-b border-white/6 pb-3 sm:pb-4">
+      <h1 className="text-2xl font-bold tracking-tight text-white sm:text-4xl">
         Your Library
       </h1>
       <p className="mt-1 text-xs text-[#A3B1AC]">
@@ -79,7 +79,7 @@ export default function LibraryView() {
 
   if (likedCount === 0) {
     return (
-      <div className="space-y-8 pb-16">
+      <div className="space-y-6 pb-4 sm:space-y-8 md:pb-16">
         {header}
         <LibraryEmpty />
       </div>
@@ -98,7 +98,7 @@ export default function LibraryView() {
   };
 
   return (
-    <div className="space-y-8 pb-16">
+    <div className="space-y-5 pb-4 sm:space-y-8 md:pb-16">
       {header}
 
       {error && (
@@ -108,9 +108,10 @@ export default function LibraryView() {
         />
       )}
 
-      {/* Controls: filter chips, sort, view toggle */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-white/6 bg-surface/50 p-2 sm:p-3">
-        <div className="flex items-center gap-2 overflow-x-auto py-1">
+      {/* Controls. Phones: chips on one row, sort + view toggle on the next.
+          sm and up: one boxed bar. */}
+      <div className="space-y-2 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:space-y-0 sm:rounded-2xl sm:border sm:border-white/6 sm:bg-surface/50 sm:p-3">
+        <div className="no-scrollbar -mx-4 flex items-center gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0 sm:py-1">
           {libraryFilters.map(({ id, label }) => {
             const isActive = filter === id;
             return (
@@ -118,7 +119,7 @@ export default function LibraryView() {
                 key={id}
                 onClick={() => setFilter(id)}
                 aria-pressed={isActive}
-                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-xs font-semibold transition-colors duration-150 ${
+                className={`flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-full px-4 text-xs font-semibold transition-colors duration-150 active:scale-95 sm:min-h-0 sm:py-1.5 ${
                   isActive
                     ? "brand-gradient text-[#0B0F0E] shadow-[0_0_12px_rgba(76,217,100,0.3)]"
                     : "border border-white/8 bg-surface text-[#A3B1AC] hover:bg-elevated hover:text-white"
@@ -130,7 +131,7 @@ export default function LibraryView() {
           })}
         </div>
 
-        <div className="ml-auto flex items-center gap-3">
+        <div className="flex items-center justify-between gap-3 sm:ml-auto sm:justify-end">
           <SortMenu value={sort} onChange={setSort} />
 
           <div className="flex items-center rounded-full border border-white/8 bg-[#0B0F0E] p-0.5">
@@ -138,7 +139,7 @@ export default function LibraryView() {
               onClick={() => setViewMode("grid")}
               aria-label="Grid view"
               aria-pressed={viewMode === "grid"}
-              className={`rounded-full p-1.5 transition-colors ${
+              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors sm:h-8 sm:w-8 ${
                 viewMode === "grid"
                   ? "bg-elevated text-[#4CD964]"
                   : "text-[#6B7A75] hover:text-white"
@@ -150,7 +151,7 @@ export default function LibraryView() {
               onClick={() => setViewMode("list")}
               aria-label="List view"
               aria-pressed={viewMode === "list"}
-              className={`rounded-full p-1.5 transition-colors ${
+              className={`flex h-10 w-10 items-center justify-center rounded-full transition-colors sm:h-8 sm:w-8 ${
                 viewMode === "list"
                   ? "bg-elevated text-[#4CD964]"
                   : "text-[#6B7A75] hover:text-white"
@@ -164,7 +165,7 @@ export default function LibraryView() {
 
       {/* Content */}
       {items.length === 0 ? (
-        <p className="rounded-2xl border border-white/6 bg-surface/40 p-8 text-center text-sm text-[#A3B1AC]">
+        <p className="rounded-2xl border border-white/6 bg-surface/40 p-6 text-center text-sm text-[#A3B1AC] sm:p-8">
           {error
             ? "Couldn't load your library. Try refreshing."
             : emptyNotes[filter]}

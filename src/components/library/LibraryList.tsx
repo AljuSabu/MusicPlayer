@@ -11,7 +11,7 @@ type Props = {
 
 export default function LibraryList({ items, isItemPlaying, onPlay }: Props) {
   return (
-    <div className="space-y-1 rounded-[20px] border border-white/6 bg-surface/60 p-2 sm:p-3">
+    <div className="space-y-1 rounded-[20px] border border-white/6 bg-surface/60 p-1.5 sm:p-3">
       {items.map((item) => {
         const isLikedRow = item.id === LIKED_ID;
         const isArtist = item.type === "artist";
@@ -20,7 +20,7 @@ export default function LibraryList({ items, isItemPlaying, onPlay }: Props) {
         return (
           <div
             key={item.id}
-            className={`group flex items-center rounded-xl transition-colors hover:bg-white/4 ${
+            className={`group flex min-h-12 items-center rounded-xl transition-colors hover:bg-white/4 ${
               isLikedRow
                 ? "bg-linear-to-r from-[#4CD964]/10 to-transparent"
                 : ""
@@ -29,7 +29,7 @@ export default function LibraryList({ items, isItemPlaying, onPlay }: Props) {
             <Link
               href={item.href}
               prefetch={false}
-              className="flex min-w-0 flex-1 items-center gap-3.5 px-3 py-2.5 sm:px-4"
+              className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2 sm:gap-3.5 sm:px-4 sm:py-2.5"
             >
               {/* Thumbnail */}
               <div
@@ -51,8 +51,8 @@ export default function LibraryList({ items, isItemPlaying, onPlay }: Props) {
               </div>
 
               {/* Name */}
-              <div className="min-w-0 flex-1 pr-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-white transition-colors group-hover:text-[#4CD964]">
+              <div className="min-w-0 flex-1 pr-2 sm:pr-4">
+                <div className="flex items-center gap-2 text-xs font-semibold text-white transition-colors group-hover:text-[#4CD964] sm:text-sm">
                   <span className="truncate">{item.title}</span>
                   {isLikedRow && (
                     <span className="brand-gradient shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold text-[#0B0F0E]">
@@ -60,7 +60,9 @@ export default function LibraryList({ items, isItemPlaying, onPlay }: Props) {
                     </span>
                   )}
                 </div>
-                <div className="truncate text-xs text-[#6B7A75]">
+                <div className="truncate text-[11px] text-[#6B7A75] sm:text-xs">
+                  {/* Phones also show the type here, since the badge column is hidden */}
+                  <span className="capitalize sm:hidden">{item.type} · </span>
                   {item.creator ?? item.countLabel}
                 </div>
               </div>
@@ -78,20 +80,25 @@ export default function LibraryList({ items, isItemPlaying, onPlay }: Props) {
               </span>
             </Link>
 
+            {/* 44px tap target on phones, with the visible circle kept at 32px */}
             <button
               onClick={() => onPlay(item)}
               aria-label={`${playing ? "Pause" : "Play"} ${item.title}`}
-              className={`mr-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors sm:mr-4 ${
-                playing
-                  ? "brand-gradient text-[#0B0F0E]"
-                  : "bg-elevated text-[#A3B1AC] group-hover:brand-gradient group-hover:text-[#0B0F0E]"
-              }`}
+              className="group/play flex h-11 w-11 shrink-0 items-center justify-center sm:mr-3"
             >
-              {playing ? (
-                <Pause className="h-3.5 w-3.5 fill-current" />
-              ) : (
-                <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
-              )}
+              <span
+                className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                  playing
+                    ? "brand-gradient text-[#0B0F0E]"
+                    : "bg-elevated text-[#A3B1AC] group-hover:brand-gradient group-hover:text-[#0B0F0E]"
+                }`}
+              >
+                {playing ? (
+                  <Pause className="h-3.5 w-3.5 fill-current" />
+                ) : (
+                  <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />
+                )}
+              </span>
             </button>
           </div>
         );
