@@ -13,7 +13,7 @@ export default function ArtistHero({
   queue: Track[];
 }) {
   return (
-    <section className="relative flex min-h-85 flex-col justify-end overflow-hidden rounded-3xl border border-white/8 bg-[#0E2019] p-6 sm:min-h-95 sm:p-10">
+    <section className="relative flex min-h-72 flex-col justify-end overflow-hidden rounded-3xl border border-white/8 bg-[#0E2019] p-4 sm:min-h-95 sm:p-10">
       {/* Artist photo, faded into the background */}
       <Image
         src={artistImageUrl(artist.id, 600)}
@@ -32,19 +32,19 @@ export default function ArtistHero({
         className="absolute inset-0 bg-linear-to-t from-[#0B0F0E] via-[#0B0F0E]/70 to-transparent"
       />
 
-      <div className="relative z-20 max-w-3xl space-y-4">
+      <div className="relative z-20 w-full max-w-3xl space-y-3 sm:space-y-4">
         <div className="flex items-center gap-2">
-          <span className="rounded-full border border-[#4CD964]/30 bg-surface px-3 py-1 text-xs font-semibold text-[#4CD964]">
+          <span className="rounded-full border border-[#4CD964]/30 bg-surface px-2.5 py-0.5 text-[11px] font-semibold text-[#4CD964] sm:px-3 sm:py-1 sm:text-xs">
             Artist
           </span>
           {artist.joindate && (
-            <span className="hidden text-xs font-medium text-[#A3B1AC] sm:inline">
+            <span className="text-[11px] font-medium text-[#A3B1AC] sm:text-xs">
               • Joined {artist.joindate.slice(0, 4)}
             </span>
           )}
         </div>
 
-        <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl sm:leading-14">
+        <h1 className="wrap-break-word text-3xl font-bold leading-tight tracking-tight text-white sm:text-5xl sm:leading-14">
           {artist.name}
         </h1>
 
@@ -54,14 +54,15 @@ export default function ArtistHero({
           </p>
         )}
 
+        {/* Phones: one scrolling line that bleeds to the card edge. sm and up: wraps. */}
         {artist.tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
             {artist.tags.map((tag) => (
               <Link
                 key={tag}
                 href={`/search?q=${encodeURIComponent(tag)}`}
                 prefetch={false}
-                className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-[11px] font-medium capitalize text-[#A3B1AC] transition-colors hover:border-[#4CD964]/40 hover:text-white"
+                className="shrink-0 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium capitalize text-[#A3B1AC] transition-colors hover:border-[#4CD964]/40 hover:text-white sm:px-2.5 sm:py-0.5"
               >
                 {tag}
               </Link>

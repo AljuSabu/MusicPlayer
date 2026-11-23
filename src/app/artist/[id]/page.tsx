@@ -59,12 +59,12 @@ async function ArtistContent({
   const tag = artist.tags[0];
 
   return (
-    <div className="space-y-12 pb-16">
+    <div className="space-y-8 pb-16 md:space-y-12">
       <ArtistHero artist={artist} queue={popular} />
 
       {popular.length > 0 && (
-        <section className="space-y-4">
-          <h2 className="text-xl font-bold tracking-tight text-white sm:text-2xl">
+        <section className="space-y-3 sm:space-y-4">
+          <h2 className="text-base font-bold tracking-tight text-white sm:text-2xl">
             Popular
           </h2>
           <PopularTracks tracks={popular} />

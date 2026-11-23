@@ -72,10 +72,10 @@ export default function ArtistActions({
   };
 
   const menuItem =
-    "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-xs text-[#A3B1AC] transition-colors hover:bg-white/5 hover:text-white";
+    "flex w-full items-center gap-2.5 rounded-lg px-3 py-3 text-left text-xs text-[#A3B1AC] transition-colors hover:bg-white/5 hover:text-white md:py-2";
 
   return (
-    <div className="flex items-center gap-4 pt-2">
+    <div className="flex items-center gap-4 pt-1 sm:pt-2">
       {tracks.length > 0 && (
         <button
           onClick={handlePlay}
@@ -96,7 +96,7 @@ export default function ArtistActions({
           aria-label="More artist options"
           aria-haspopup="menu"
           aria-expanded={menuOpen}
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-white/8 bg-surface text-[#A3B1AC] transition-colors hover:border-white/20 hover:bg-elevated hover:text-white"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-white/8 bg-surface text-[#A3B1AC] transition-colors hover:border-white/20 hover:bg-elevated hover:text-white md:h-10 md:w-10"
         >
           <MoreHorizontal className="h-5 w-5" />
         </button>

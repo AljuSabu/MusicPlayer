@@ -19,7 +19,7 @@ export default function PopularTracks({
   const { isLiked, toggleLike } = usePlayer();
 
   return (
-    <ul className="space-y-1 rounded-[20px] border border-white/6 bg-surface/60 p-2 sm:p-3">
+    <ul className="space-y-1 rounded-[20px] border border-white/6 bg-surface/60 p-1.5 sm:p-3">
       {tracks.slice(0, visible).map((track, i) => {
         const isCurrent = currentId === track.id;
         const showPause = isCurrent && isPlaying;
@@ -29,8 +29,8 @@ export default function PopularTracks({
           <li
             key={track.id}
             onClick={() => toggle(track)}
-            className={`group flex cursor-pointer items-center justify-between rounded-xl px-3 py-2.5 transition-colors sm:px-4 ${
-              isCurrent ? "bg-elevated" : "hover:bg-white/4"
+            className={`group flex min-h-12 cursor-pointer items-center justify-between rounded-xl py-1 pl-3 pr-1 transition-colors sm:px-4 sm:py-2.5 ${
+              isCurrent ? "bg-elevated" : "hover:bg-white/4 active:bg-white/4"
             }`}
           >
             <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
@@ -40,7 +40,7 @@ export default function PopularTracks({
                   toggle(track);
                 }}
                 aria-label={`${showPause ? "Pause" : "Play"} ${track.name}`}
-                className="w-6 shrink-0 text-center font-mono text-xs text-[#6B7A75]"
+                className="w-5 shrink-0 text-center font-mono text-xs text-[#6B7A75] sm:w-6"
               >
                 {showPause ? (
                   <span className="flex h-5 items-end justify-center gap-0.5">
@@ -70,9 +70,9 @@ export default function PopularTracks({
                 />
               </div>
 
-              <div className="min-w-0 flex-1 pr-2">
+              <div className="min-w-0 flex-1 pr-1 sm:pr-2">
                 <p
-                  className={`truncate text-sm font-semibold ${
+                  className={`truncate text-xs font-semibold sm:text-sm ${
                     isCurrent ? "text-[#4CD964]" : "text-white"
                   }`}
                 >
@@ -83,17 +83,20 @@ export default function PopularTracks({
                     href={`/album/${track.album_id}`}
                     prefetch={false}
                     onClick={(e) => e.stopPropagation()}
-                    className="inline-block max-w-full truncate align-top text-xs text-[#6B7A75] hover:text-white hover:underline"
+                    className="inline-block max-w-full truncate align-top text-[11px] text-[#6B7A75] hover:text-white hover:underline sm:text-xs"
                   >
                     {track.album_name}
                   </Link>
                 ) : (
-                  <span className="text-xs text-[#6B7A75]">Single</span>
+                  <span className="text-[11px] text-[#6B7A75] sm:text-xs">
+                    Single
+                  </span>
                 )}
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-4 pl-3 sm:gap-6">
+            <div className="flex shrink-0 items-center gap-0.5 pl-2 sm:gap-6 sm:pl-3">
+              {/* 44px tap target on phones */}
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -102,13 +105,13 @@ export default function PopularTracks({
                 aria-label={
                   liked ? "Remove from Liked Songs" : "Save to Liked Songs"
                 }
-                className={`rounded-full p-1.5 transition-colors ${
+                className={`flex h-11 w-11 items-center justify-center rounded-full transition-colors sm:h-8 sm:w-8 ${
                   liked ? "text-[#4CD964]" : "text-[#6B7A75] hover:text-white"
                 }`}
               >
                 <Heart className={`h-4 w-4 ${liked ? "fill-current" : ""}`} />
               </button>
-              <span className="w-10 text-right font-mono text-xs text-[#A3B1AC]">
+              <span className="w-9 text-right font-mono text-[11px] text-[#A3B1AC] sm:w-10 sm:text-xs">
                 {formatTime(track.duration)}
               </span>
             </div>
