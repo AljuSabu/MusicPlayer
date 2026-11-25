@@ -6,8 +6,43 @@ import AlbumActions from "@/components/album/AlbumActions";
 import AlbumTrackList from "@/components/album/AlbumTrackList";
 import MoreByArtist from "@/components/album/MoreByArtist";
 import AlbumSkeleton from "@/components/album/AlbumSkeleton";
+import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
+import { formatLongDuration } from "@/lib/utils";
 
 type Params = Promise<{ id: string }>;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  "use cache";
+  cacheLife("hours");
+
+  const { id } = await params;
+  if (!/^\d+$/.test(id)) return { title: "Album not found" };
+
+  const data = await getAlbumWithTracks(id).catch(() => null);
+  if (!data) return { title: "Album" };
+
+  const { album, tracks } = data;
+  const totalSeconds = tracks.reduce((sum, t) => sum + t.duration, 0);
+  const title = `${album.name} by ${album.artist_name}`;
+  const description = `${album.name} by ${album.artist_name}: ${tracks.length} ${
+    tracks.length === 1 ? "song" : "songs"
+  }, ${formatLongDuration(totalSeconds)}. Listen free on Vibra.`;
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title: `${title} · Vibra`,
+      description,
+      images: album.image ? [{ url: album.image }] : undefined,
+    },
+  };
+}
 
 export default function AlbumPage({ params }: { params: Params }) {
   return (

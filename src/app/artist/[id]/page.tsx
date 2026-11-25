@@ -8,9 +8,45 @@ import Discography, {
 } from "@/components/artist/Discography";
 import SimilarArtists from "@/components/artist/SimilarArtists";
 import ArtistSkeleton from "@/components/artist/ArtistSkeleton";
+import type { Metadata } from "next";
+import { cacheLife } from "next/cache";
+import { artistImageUrl } from "@/lib/library";
 
 type Params = Promise<{ id: string }>;
 type SearchParams = Promise<{ releases?: string }>;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  "use cache";
+  cacheLife("hours");
+
+  const { id } = await params;
+  if (!/^\d+$/.test(id)) return { title: "Artist not found" };
+
+  const artist = await getArtistProfile(id).catch(() => null);
+  if (!artist) return { title: "Artist" };
+
+  const description = artist.bio
+    ? artist.bio.length > 160
+      ? `${artist.bio.slice(0, 157).trimEnd()}…`
+      : artist.bio
+    : `Listen to ${artist.name} on Vibra.${
+        artist.tags.length ? ` Genres: ${artist.tags.join(", ")}.` : ""
+      }`;
+
+  return {
+    title: artist.name,
+    description,
+    openGraph: {
+      title: `${artist.name} · Vibra`,
+      description,
+      images: [{ url: artistImageUrl(artist.id, 600) }],
+    },
+  };
+}
 
 export default function ArtistPage({
   params,

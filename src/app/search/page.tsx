@@ -11,8 +11,24 @@ import PlaylistsSection from "@/components/search/PlaylistsSection";
 import { SongsSkeleton } from "@/components/search/Skeletons";
 import { ShelfSkeleton } from "@/components/home/Skeletons";
 import SearchBox from "@/components/SearchBox";
+import type { Metadata } from "next";
 
 type SearchParams = Promise<{ q?: string; type?: string }>;
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: SearchParams;
+}): Promise<Metadata> {
+  const { q } = await searchParams;
+  const query = q?.trim().slice(0, 60);
+
+  if (!query) return { title: "Search" };
+  return {
+    title: `Results for “${query}”`,
+    robots: { index: false, follow: true },
+  };
+}
 
 export default function SearchPage({
   searchParams,

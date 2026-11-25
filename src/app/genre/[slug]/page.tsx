@@ -4,11 +4,27 @@ import { allGenres } from "@/lib/genres";
 import { getTracksByGenre } from "@/lib/jamendo";
 import TrackList from "@/components/TrackList";
 import ListSkeleton from "@/components/ListSkeleton";
+import type { Metadata } from "next";
 
 type Params = Promise<{ slug: string }>;
 
 export function generateStaticParams() {
   return allGenres.map((g) => ({ slug: g.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Params;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const genre = allGenres.find((g) => g.slug === slug);
+  if (!genre) return { title: "Genre not found" };
+
+  return {
+    title: `${genre.name} music`,
+    description: `${genre.tagline}. Stream free ${genre.name.toLowerCase()} tracks on Vibra.`,
+  };
 }
 
 export default function GenrePage({ params }: { params: Params }) {
